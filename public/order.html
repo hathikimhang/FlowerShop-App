@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Khách Hàng - Zịt Florist</title>
+    <title>Đơn Hàng - Zịt Florist</title>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -13,34 +13,34 @@
             <div class="brand-name">Zịt Florist</div>
         </div>
         <div class="search-section">
-            <input type="text" placeholder="Tìm số điện thoại khách...">
+            <input type="text" placeholder="Tìm mã đơn hàng...">
             <button><i class="fas fa-search"></i></button>
         </div>
-        <div class="cart-section"><i class="fas fa-shopping-cart cart-icon"></i><span class="cart-count">0</span></div>
+        <div class="cart-section"><i class="fas fa-shopping-cart cart-icon"></i><span class="cart-count">8</span></div>
     </header>
 
     <nav>
         <a href="admin.html">Dashboard</a>
         <a href="flower.html">Quản lý Hoa</a>
-        <a href="order.html">Đơn Hàng</a>
+        <a href="order.html" class="active">Đơn Hàng</a>
         <a href="inventory.html">Kho Hàng</a>
-        <a href="customer.html" class="active">Khách Hàng</a>
+        <a href="customer.html">Khách Hàng</a>
     </nav>
 
     <div class="main-content">
-        <h1>👥 Quản Lý Khách Hàng</h1>
+        <h1>📦 Danh Sách Đơn Hàng</h1>
         <table>
             <thead>
                 <tr>
-                    <th>Tên Khách</th>
-                    <th>Số Điện Thoại</th>
-                    <th>Hạng VIP</th>
+                    <th>Mã Đơn</th>
+                    <th>Địa Chỉ</th>
+                    <th>Trạng Thái</th>
                     <th>Thao Tác</th>
                 </tr>
             </thead>
-            <tbody id="customer-table-body"></tbody>
+            <tbody id="order-table-body"></tbody>
         </table>
     </div>
-    <script src="js/customer.js"></script>
+    <script src="js/order.js"></script>
 </body>
 </html>

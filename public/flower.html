@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Hoa - Tiệm Hoa Zịt</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo-section">
+            <div class="logo-circle">
+                <img src="images/logo-duck.png" alt="Duck Logo"> 
+            </div>
+            <div class="brand-name">Zịt Florist</div> </div>
+
+        <div class="search-section">
+            <input type="text" placeholder="Tìm kiếm mẫu hoa...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+
+        <div class="cart-section" onclick="location.href='order.html'">
+            <i class="fas fa-shopping-cart cart-icon"></i>
+            <span class="cart-count">8</span> </div>
+    </header>
+
+    <nav>
+        <a href="admin.html">Dashboard</a>
+        <a href="flower.html" class="active">Quản lý Hoa</a> <a href="order.html">Đơn Hàng</a>
+        <a href="inventory.html">Kho Hàng</a>
+        <a href="customer.html">Khách Hàng</a>
+    </nav>
+
+    <div class="main-content">
+        <h1>Quản Lý Mẫu Hoa (CRUD)</h1>
+        
+        <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+            <h3>Thêm mẫu hoa mới</h3>
+            <input type="text" id="name" placeholder="Tên hoa (VD: Hoa Hồng Đỏ)">
+            <input type="text" id="category" placeholder="Danh mục">
+            <input type="number" id="price" placeholder="Giá tiền (VNĐ)">
+            <input type="number" id="stock" placeholder="Số lượng tồn">
+            <button class="btn btn-add" onclick="createFlower()">+ Thêm mới</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tên Hoa</th>
+                    <th>Danh Mục</th>
+                    <th>Giá</th>
+                    <th>Tồn Kho</th>
+                    <th>Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody id="flower-table-body"></tbody>
+        </table>
+    </div>
+    <script src="js/flower.js"></script>
+</body>
+</html>

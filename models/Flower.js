@@ -38,7 +38,7 @@ const flowerSchema = new mongoose.Schema({
         default: true // Để bật/tắt hiển thị mẫu hoa trên trang chủ
     }
 }, {
-    // Tự động tạo field createdAt và updatedAt (Rất quan trọng cho BA để quản lý đơn hàng/sản phẩm)
+    // Tự động tạo field createdAt và updatedAt
     timestamps: true 
 });
 

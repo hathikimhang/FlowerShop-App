@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Zịt Florist</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo-section">
+            <div class="logo-circle"><img src="images/logo-duck.png" alt="Duck"></div>
+            <div class="brand-name">Zịt Florist</div>
+        </div>
+        <div class="search-section">
+            <input type="text" placeholder="Tìm kiếm nhanh...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+        <div class="cart-section" onclick="location.href='order.html'">
+            <i class="fas fa-shopping-cart cart-icon"></i>
+            <span class="cart-count">8</span>
+        </div>
+    </header>
+
+    <nav>
+        <a href="admin.html" class="active">Dashboard</a>
+        <a href="flower.html">Quản lý Hoa</a>
+        <a href="order.html">Đơn Hàng</a>
+        <a href="inventory.html">Kho Hàng</a>
+        <a href="customer.html">Khách Hàng</a>
+    </nav>
+
+    <div class="main-content">
+        <div style="background: #00bcd4; color: white; padding: 40px; border-radius: 15px; margin-bottom: 30px;">
+            <h1>Chào buổi sáng, Zịt! 🦆</h1>
+            <p>Hôm nay hệ thống đang vận hành rất ổn định.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; border-bottom: 4px solid #00bcd4;">
+                <h3 style="color: #666;">Mẫu Hoa</h3>
+                <p style="font-size: 35px; color: #00bcd4; font-weight: bold;" id="total-flowers">...</p>
+            </div>
+            <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; border-bottom: 4px solid #4caf50;">
+                <h3 style="color: #666;">Đơn Hàng Mới</h3>
+                <p style="font-size: 35px; color: #4caf50; font-weight: bold;">15</p>
+            </div>
+            <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; border-bottom: 4px solid #ff9800;">
+                <h3 style="color: #666;">Khách Hàng</h3>
+                <p style="font-size: 35px; color: #ff9800; font-weight: bold;" id="total-customers">...</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        async function loadStats() {
+            try {
+                const resF = await fetch('/api/flowers/getAllFlowers');
+                const flowers = await resF.json();
+                document.getElementById('total-flowers').innerText = flowers.length;
+                const resC = await fetch('/api/customers/getAllCustomers');
+                const customers = await resC.json();
+                document.getElementById('total-customers').innerText = customers.length;
+            } catch (e) { console.log("Chưa có data"); }
+        }
+        loadStats();
+    </script>
+</body>
+</html>

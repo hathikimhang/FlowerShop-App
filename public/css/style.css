@@ -1,0 +1,38 @@
+/* Tổng thể */
+body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; display: block; /* Bỏ flex cũ */ }
+
+/* --- HEADER CHÍNH (Giống hình Duck Store) --- */
+header { background-color: white; padding: 10px 50px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
+
+.logo-section { display: flex; align-items: center; gap: 15px; }
+.logo-circle { width: 60px; height: 60px; background-color: #00bcd4; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.logo-circle img { width: 80%; height: auto; } /* Chỗ để hình con vịt */
+.brand-name { font-size: 28px; font-weight: bold; color: #00bcd4; text-transform: uppercase; letter-spacing: 1px; }
+
+.search-section { flex: 1; max-width: 600px; display: flex; margin: 0 30px; }
+.search-section input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px 0 0 5px; outline: none; }
+.search-section button { padding: 12px 20px; background-color: #f5f5f5; border: 1px solid #ddd; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; color: #555; }
+
+.cart-section { position: relative; cursor: pointer; }
+.cart-icon { font-size: 24px; color: #333; }
+.cart-count { position: absolute; top: -10px; right: -10px; background-color: #4caf50; color: white; border-radius: 50%; padding: 3px 7px; font-size: 12px; font-weight: bold; }
+
+/* --- THANH MENU NGANG (Màu xanh cyan) --- */
+nav { background-color: #00bcd4; /* Xanh y hình Duck Store */ padding: 0 50px; display: flex; justify-content: start; gap: 5px; }
+nav a { color: white; text-decoration: none; padding: 15px 20px; font-weight: bold; text-transform: uppercase; font-size: 14px; transition: 0.3s; }
+nav a:hover, nav a.active { background-color: rgba(255,255,255,0.2); }
+
+/* --- NỘI DUNG CHÍNH --- */
+.main-content { padding: 40px 50px; margin: 0; /* Bỏ margin-left cũ */ }
+
+/* Bảng và Card (Giữ nguyên logic cũ nhưng tút lại cho đẹp) */
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+th, td { padding: 18px; text-align: left; border-bottom: 1px solid #eee; }
+th { background-color: #e0f7fa; color: #00838f; text-transform: uppercase; font-size: 13px; }
+
+.btn { border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; }
+.btn-add { background-color: #4caf50; margin-bottom: 20px; }
+.btn-edit { background-color: #03a9f4; }
+.btn-delete { background-color: #f44336; }
+
+input[type="text"], input[type="number"], select { padding: 12px; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px; }
