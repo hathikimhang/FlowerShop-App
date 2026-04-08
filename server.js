@@ -1,5 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
+
+const flowerRoutes = require('./routes/flowerRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
+const customerRoutes = require('./routes/customerRoutes');
+
+
 const cors = require('cors');
 
 // Khởi tạo app Express
@@ -20,19 +27,13 @@ const mongoURI = 'mongodb://127.0.0.1:27017/student_management';
 mongoose.connect(mongoURI)
     .then(() => console.log('🟢 Đã kết nối thành công với MongoDB!'))
     .catch(err => console.error('🔴 Lỗi kết nối MongoDB:', err));
+-
+// Gắn từng route vào đúng đường link gốc của nó
+app.use('/api/flowers', flowerRoutes); // Link cho quản lý Hoa 
+app.use('/api/orders', orderRoutes);       // Link mới cho Đơn Hàng
+app.use('/api/inventory', inventoryRoutes); // Link mới cho Kho
+app.use('/api/customers', customerRoutes);  // Link mới cho Khách hàng
 
-// --- 3. ĐỊNH TUYẾN (ROUTES) ---
-// Tạm thời comment lại, sau khi bà tạo file routes thì mở ra xài
-/*
-const studentRoutes = require('./routes/studentRoutes');
-const parentRoutes = require('./routes/parentRoutes');
-const classRoutes = require('./routes/classRoutes');
-
-// Gắn routes vào app (Ví dụ: 3 Collections chính)
-app.use('/api/students', studentRoutes); // CRUD cho Học sinh
-app.use('/api/parents', parentRoutes);   // CRUD cho Phụ huynh
-app.use('/api/classes', classRoutes);    // CRUD cho Lớp học
-*/
 
 // Route test thử xem server sống không
 app.get('/', (req, res) => {
