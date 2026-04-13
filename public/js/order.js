@@ -1,7 +1,8 @@
 const API_URL = '/api/orders';
 
 async function fetchOrders() {
-    const res = await fetch(`${API_URL}/getAllOrders`);
+    const res = await fetchWithAuth(`${API_URL}/getAllOrders`);
+    if (!res.ok) return;
     const data = await res.json();
     const tbody = document.getElementById('order-table-body');
     tbody.innerHTML = '';
@@ -24,7 +25,7 @@ async function updateStatus(id) {
     if (newStatus) {
         await fetch(`${API_URL}/updateOrder/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...authHeader() },
             body: JSON.stringify({ status: newStatus })
         });
         fetchOrders();
@@ -33,8 +34,20 @@ async function updateStatus(id) {
 
 async function deleteOrder(id) {
     if (confirm('Xóa đơn này nha má?')) {
-        await fetch(`${API_URL}/deleteOrder/${id}`, { method: 'DELETE' });
+        await fetchWithAuth(`${API_URL}/deleteOrder/${id}`, { method: 'DELETE' });
         fetchOrders();
     }
 }
-fetchOrders();
+
+function logout() {
+    clearAuth();
+    window.location.href = 'login.html';
+}
+
+window.logout = logout;
+
+(async () => {
+    const user = await requireRole(['admin']);
+    if (!user) return;
+    fetchOrders();
+})();

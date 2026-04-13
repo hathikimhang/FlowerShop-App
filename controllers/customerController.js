@@ -1,5 +1,14 @@
 const Customer = require('../models/Customer'); // Nhớ tạo file Customer.js nha
 
+const addCustomer = async (req, res) => {
+    try {
+        const customer = await Customer.create(req.body);
+        res.status(201).json({ message: "Thêm khách hàng thành công!", data: customer });
+    } catch (error) {
+        res.status(400).json({ message: "Lỗi khi thêm khách hàng", error: error.message });
+    }
+};
+
 const getAllCustomers = async (req, res) => {
     try {
         const customers = await Customer.find();
@@ -29,4 +38,4 @@ const deleteCustomer = async (req, res) => {
     }
 };
 
-module.exports = { getAllCustomers, updateCustomer, deleteCustomer };
+module.exports = { addCustomer, getAllCustomers, updateCustomer, deleteCustomer };

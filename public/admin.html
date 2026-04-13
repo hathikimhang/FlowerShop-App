@@ -23,11 +23,13 @@
     </header>
 
     <nav>
+        <a href="storefront.html">Cửa Hàng</a>
         <a href="admin.html" class="active">Dashboard</a>
         <a href="flower.html">Quản lý Hoa</a>
         <a href="order.html">Đơn Hàng</a>
         <a href="inventory.html">Kho Hàng</a>
         <a href="customer.html">Khách Hàng</a>
+        <a href="#" onclick="logout()">Dang xuat</a>
     </nav>
 
     <div class="main-content">
@@ -51,13 +53,21 @@
             </div>
         </div>
     </div>
+    <script src="js/auth.js"></script>
     <script>
+        function logout() {
+            clearAuth();
+            window.location.href = 'login.html';
+        }
+
         async function loadStats() {
+            const user = await requireRole(['admin']);
+            if (!user) return;
             try {
-                const resF = await fetch('/api/flowers/getAllFlowers');
+                const resF = await fetchWithAuth('/api/flowers/getAllFlowers');
                 const flowers = await resF.json();
                 document.getElementById('total-flowers').innerText = flowers.length;
-                const resC = await fetch('/api/customers/getAllCustomers');
+                const resC = await fetchWithAuth('/api/customers/getAllCustomers');
                 const customers = await resC.json();
                 document.getElementById('total-customers').innerText = customers.length;
             } catch (e) { console.log("Chưa có data"); }

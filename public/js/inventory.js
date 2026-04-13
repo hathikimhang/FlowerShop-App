@@ -1,7 +1,8 @@
 const API_URL = '/api/inventory';
 
 async function fetchInventory() {
-    const res = await fetch(`${API_URL}/getAllInventory`);
+    const res = await fetchWithAuth(`${API_URL}/getAllInventory`);
+    if (!res.ok) return;
     const data = await res.json();
     const tbody = document.getElementById('inventory-table-body');
     tbody.innerHTML = '';
@@ -20,8 +21,20 @@ async function fetchInventory() {
 
 async function wasteInventory(id) {
     if (confirm('Hoa héo rồi bỏ nha?')) {
-        await fetch(`${API_URL}/deleteInventory/${id}`, { method: 'DELETE' });
+        await fetchWithAuth(`${API_URL}/deleteInventory/${id}`, { method: 'DELETE' });
         fetchInventory();
     }
 }
-fetchInventory();
+
+function logout() {
+    clearAuth();
+    window.location.href = 'login.html';
+}
+
+window.logout = logout;
+
+(async () => {
+    const user = await requireRole(['admin']);
+    if (!user) return;
+    fetchInventory();
+})();

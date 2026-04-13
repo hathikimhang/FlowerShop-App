@@ -26,10 +26,12 @@
     </header>
 
     <nav>
+        <a href="storefront.html">Cửa Hàng</a>
         <a href="admin.html">Dashboard</a>
         <a href="flower.html" class="active">Quản lý Hoa</a> <a href="order.html">Đơn Hàng</a>
         <a href="inventory.html">Kho Hàng</a>
         <a href="customer.html">Khách Hàng</a>
+        <a href="#" onclick="logout()">Dang xuat</a>
     </nav>
 
     <div class="main-content">
@@ -39,15 +41,18 @@
             <h3>Thêm mẫu hoa mới</h3>
             <input type="text" id="name" placeholder="Tên hoa (VD: Hoa Hồng Đỏ)">
             <input type="text" id="category" placeholder="Danh mục">
+            <input type="file" id="imageFile" accept="image/*">
             <input type="number" id="price" placeholder="Giá tiền (VNĐ)">
             <input type="number" id="stock" placeholder="Số lượng tồn">
             <button class="btn btn-add" onclick="createFlower()">+ Thêm mới</button>
+            <p style="margin-top: 10px; color: #666;">Admin bấm Chọn tệp để mở folder trên máy và upload ảnh hoa.</p>
         </div>
 
         <table>
             <thead>
                 <tr>
                     <th>Tên Hoa</th>
+                    <th>Ảnh</th>
                     <th>Danh Mục</th>
                     <th>Giá</th>
                     <th>Tồn Kho</th>
@@ -57,6 +62,7 @@
             <tbody id="flower-table-body"></tbody>
         </table>
     </div>
+    <script src="js/auth.js"></script>
     <script src="js/flower.js"></script>
 </body>
 </html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dang ky - FlowerShop</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="main-content" style="max-width: 500px; margin: 30px auto;">
+        <h1>Dang ky tai khoan khach hang</h1>
+        <div style="background: white; padding: 20px; border-radius: 10px;">
+            <input type="text" id="fullName" placeholder="Ho ten" style="width: 100%; margin-bottom: 10px;">
+            <input type="email" id="email" placeholder="Email" style="width: 100%; margin-bottom: 10px;">
+            <input type="password" id="password" placeholder="Mat khau" style="width: 100%; margin-bottom: 10px;">
+            <button class="btn btn-add" style="width: 100%;" onclick="register()">Dang ky</button>
+            <p id="register-msg" style="margin-top: 10px;"></p>
+            <p>Da co tai khoan? <a href="login.html">Dang nhap</a></p>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        async function register() {
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const msgEl = document.getElementById('register-msg');
+
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fullName, email, password })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                msgEl.innerText = data.message || 'Dang ky that bai.';
+                return;
+            }
+
+            saveAuth(data.token, data.user);
+            redirectByRole(data.user);
+        }
+    </script>
+</body>
+</html>

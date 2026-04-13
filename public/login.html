@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dang nhap - FlowerShop</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="main-content" style="max-width: 500px; margin: 30px auto;">
+        <h1>Dang nhap</h1>
+        <div style="background: white; padding: 20px; border-radius: 10px;">
+            <input type="email" id="email" placeholder="Email" style="width: 100%; margin-bottom: 10px;">
+            <input type="password" id="password" placeholder="Mat khau" style="width: 100%; margin-bottom: 10px;">
+            <button class="btn btn-add" style="width: 100%;" onclick="login()">Dang nhap</button>
+            <p id="login-msg" style="margin-top: 10px;"></p>
+            <p>Chua co tai khoan? <a href="register.html">Dang ky</a></p>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const currentUser = getCurrentUser();
+        if (currentUser && getToken()) {
+            redirectByRole(currentUser);
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const msgEl = document.getElementById('login-msg');
+
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                msgEl.innerText = data.message || 'Dang nhap that bai.';
+                return;
+            }
+
+            saveAuth(data.token, data.user);
+            redirectByRole(data.user);
+        }
+    </script>
+</body>
+</html>

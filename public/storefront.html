@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cửa hàng hoa - Zịt Florist</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-section">
+            <div class="logo-circle">
+                <!-- NOTE: Thay ảnh logo tiệm ở đây -->
+                <img src="images/logo-duck.png" alt="Logo tiệm hoa">
+            </div>
+            <div class="brand-name">Zịt Florist</div>
+        </div>
+        <div class="search-section">
+            <input type="text" id="search-input" placeholder="Tìm tên mẫu hoa...">
+            <button id="search-btn">Tìm</button>
+        </div>
+    </header>
+
+    <nav>
+        <a href="storefront.html" class="active">Cửa Hàng</a>
+        <a href="admin.html">Dashboard</a>
+        <a href="flower.html">Quản lý Hoa</a>
+        <a href="order.html">Đơn Hàng</a>
+        <a href="inventory.html">Kho Hàng</a>
+        <a href="customer.html">Khách Hàng</a>
+        <a href="#" onclick="logout()">Dang xuat</a>
+    </nav>
+
+    <div class="main-content">
+        <h1>Storefront - Đặt Hoa Online</h1>
+        <div class="storefront-filters">
+            <select id="category-filter">
+                <option value="">Tất cả chủ đề</option>
+                <option value="Hoa sinh nhật">Hoa sinh nhật</option>
+                <option value="Hoa khai trương">Hoa khai trương</option>
+                <option value="Hoa tình yêu">Hoa tình yêu</option>
+                <option value="Khác">Khác</option>
+            </select>
+            <button class="btn btn-edit" id="filter-btn">Lọc</button>
+            <button class="btn btn-delete" id="reset-btn">Xóa lọc</button>
+        </div>
+
+        <div id="flower-grid" class="flower-grid"></div>
+
+        <div class="order-form-wrapper">
+            <h2>Đặt Hoa</h2>
+            <p>Chọn mẫu hoa ở danh sách phía trên, sau đó điền form bên dưới.</p>
+            <form id="order-form">
+                <input type="hidden" id="flower-id">
+                <input type="text" id="fullName" placeholder="Tên người nhận/đặt" required>
+                <input type="text" id="phone" placeholder="Số điện thoại" required>
+                <input type="text" id="address" placeholder="Địa chỉ giao hàng" required>
+                <input type="number" id="quantity" placeholder="Số lượng" min="1" value="1" required>
+                <input type="datetime-local" id="deliveryTime">
+                <input type="text" id="cardMessage" placeholder="Lời ghi trên thiệp">
+                <button type="submit" class="btn btn-add">Đặt Hàng</button>
+            </form>
+            <p id="order-result"></p>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/storefront.js"></script>
+</body>
+</html>

@@ -1,9 +1,36 @@
 const Flower = require('../models/Flower');
+const fs = require('fs');
+const path = require('path');
+
+const DEFAULT_IMAGE = 'https://placehold.co/600x400?text=Flower+Image';
+
+const removeLocalImageIfExists = (imageUrl) => {
+    if (!imageUrl || !imageUrl.startsWith('/uploads/flowers/')) {
+        return;
+    }
+
+    const filename = imageUrl.replace('/uploads/flowers/', '');
+    const filePath = path.join(__dirname, '..', 'public', 'uploads', 'flowers', filename);
+    if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+    }
+};
 
 // 1. Lấy danh sách tất cả các mẫu hoa
 const getAllFlowers = async (req, res) => {
     try {
-        const flowers = await Flower.find();
+        const { search, category } = req.query;
+        const query = {};
+
+        if (search) {
+            query.name = { $regex: search, $options: 'i' };
+        }
+
+        if (category) {
+            query.category = category;
+        }
+
+        const flowers = await Flower.find(query);
         res.status(200).json(flowers);
     } catch (error) { 
         res.status(500).json({ message: "Lỗi khi lấy danh sách mẫu hoa", error: error.message }); 
@@ -13,7 +40,16 @@ const getAllFlowers = async (req, res) => {
 // 2. Thêm một mẫu hoa mới vào tiệm
 const addFlower = async (req, res) => {
     try {
-        const newFlower = new Flower(req.body);
+        const payload = { ...req.body };
+        if (req.file) {
+            payload.image = `/uploads/flowers/${req.file.filename}`;
+        }
+
+        if (!payload.image) {
+            payload.image = DEFAULT_IMAGE;
+        }
+
+        const newFlower = new Flower(payload);
         const savedFlower = await newFlower.save();
         res.status(201).json({ message: "Thêm mẫu hoa thành công!", data: savedFlower });
     } catch (error) { 
@@ -33,11 +69,53 @@ const updateFlower = async (req, res) => {
     }
 };
 
+const updateFlowerImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'Vui long chon file anh truoc khi tai len.' });
+        }
+
+        const flower = await Flower.findById(req.params.id);
+        if (!flower) {
+            return res.status(404).json({ message: 'Khong tim thay mau hoa nay' });
+        }
+
+        const oldImage = flower.image;
+        flower.image = `/uploads/flowers/${req.file.filename}`;
+        await flower.save();
+
+        removeLocalImageIfExists(oldImage);
+
+        return res.status(200).json({ message: 'Cap nhat anh hoa thanh cong!', data: flower });
+    } catch (error) {
+        return res.status(400).json({ message: 'Loi khi cap nhat anh hoa', error: error.message });
+    }
+};
+
+const deleteFlowerImage = async (req, res) => {
+    try {
+        const flower = await Flower.findById(req.params.id);
+        if (!flower) {
+            return res.status(404).json({ message: 'Khong tim thay mau hoa nay' });
+        }
+
+        const oldImage = flower.image;
+        flower.image = DEFAULT_IMAGE;
+        await flower.save();
+
+        removeLocalImageIfExists(oldImage);
+        return res.status(200).json({ message: 'Da xoa anh hien tai, da doi ve anh mac dinh.', data: flower });
+    } catch (error) {
+        return res.status(500).json({ message: 'Loi khi xoa anh hoa', error: error.message });
+    }
+};
+
 // 4. Xóa một mẫu hoa khỏi hệ thống
 const deleteFlower = async (req, res) => {
     try {
         const deletedFlower = await Flower.findByIdAndDelete(req.params.id);
         if (!deletedFlower) return res.status(404).json({ message: "Không tìm thấy mẫu hoa này" });
+        removeLocalImageIfExists(deletedFlower.image);
         res.status(200).json({ message: "Đã xóa mẫu hoa thành công!" });
     } catch (error) { 
         res.status(500).json({ message: "Lỗi khi xóa hoa", error: error.message }); 
@@ -49,5 +127,7 @@ module.exports = {
     getAllFlowers, 
     addFlower, 
     updateFlower, 
+    updateFlowerImage,
+    deleteFlowerImage,
     deleteFlower 
 };
