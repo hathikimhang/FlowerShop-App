@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    // Liên kết với bảng Customer (Ai là người đặt đơn này?)
-    customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
+    // Liên kết với bảng User (Ai là người đặt đơn này?)
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    
+    // Thông tin người nhận cụ thể cho lần đặt này
+    recipientName: { type: String, required: true },
+    recipientPhone: { type: String, required: true },
     
     // Khách có thể mua nhiều loại hoa cùng lúc, nên để dạng Mảng (Array)
     items: [{

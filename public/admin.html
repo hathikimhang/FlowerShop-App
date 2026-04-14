@@ -2,39 +2,42 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - Zịt Florist</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <header>
-        <div class="logo-section">
-            <div class="logo-circle"><img src="assets/images/logo-shop.svg" alt="Logo shop"></div>
-            <div class="brand-name">Zịt Florist</div>
+   <header>
+        <div class="logo-container">
+            <a href="admin.html">
+            <img src="./assets/images/logo.png" alt="Florist Shop Logo" class="main-logo">
+            </a>
         </div>
         <div class="search-section">
             <input type="text" placeholder="Tìm kiếm nhanh...">
             <button><i class="fas fa-search"></i></button>
         </div>
-        <div class="cart-section" onclick="location.href='order.html'">
-            <i class="fas fa-shopping-cart cart-icon"></i>
-            <span class="cart-count">8</span>
-        </div>
     </header>
 
-    <nav>
-        <a href="storefront.html">Cửa Hàng</a>
-        <a href="admin.html" class="active">Dashboard</a>
-        <a href="flower.html">Quản lý Hoa</a>
-        <a href="order.html">Đơn Hàng</a>
-        <a href="inventory.html">Kho Hàng</a>
-        <a href="customer.html">Khách Hàng</a>
-        <a href="#" onclick="logout()">Đăng Xuất</a>
-    </nav>
+   <nav>
+    <a href="admin.html">Dashboard</a>
+    <a href="order.html">Đơn Hàng</a>
+    <a href="flower.html">Quản lý Hoa</a>
+    <a href="inventory.html">Kho Hàng</a>
+    <a href="customer.html">Khách Hàng</a>
+    <a href="storefront.html">Cửa Hàng</a>
+    <div class="dropdown">
+        <button class="dropbtn">TÀI KHOẢN ▼</button>
+        <div class="dropdown-content">
+            <a href="profile.html">Thông tin cá nhân</a>
+            <a href="#" onclick="logout()">Đăng xuất</a>
+        </div>
+    </div>
+</nav>
 
     <div class="main-content">
-        <div style="background: #00bcd4; color: white; padding: 40px; border-radius: 15px; margin-bottom: 30px;">
-            <h1>Chào buổi sáng, Zịt! 🦆</h1>
+        <div style="background: #2d6a59; color: white; padding: 40px; border-radius: 15px; margin-bottom: 30px;">
+            <h1>Chào buổi sáng !</h1>
             <p>Hôm nay hệ thống đang vận hành rất ổn định.</p>
         </div>
 
@@ -44,8 +47,8 @@
                 <p style="font-size: 35px; color: #00bcd4; font-weight: bold;" id="total-flowers">...</p>
             </div>
             <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; border-bottom: 4px solid #4caf50;">
-                <h3 style="color: #666;">Đơn Hàng Mới</h3>
-                <p style="font-size: 35px; color: #4caf50; font-weight: bold;">15</p>
+                <h3 style="color: #666;">Đơn Hàng</h3>
+                <p style="font-size: 35px; color: #4caf50; font-weight: bold;" id="total-orders">...</p>
             </div>
             <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; border-bottom: 4px solid #ff9800;">
                 <h3 style="color: #666;">Khách Hàng</h3>
@@ -53,7 +56,10 @@
             </div>
         </div>
     </div>
-    <script src="js/auth.js"></script>
+
+    console.log(">>> VÀO ADMIN PAGE");
+
+    <script src="./js/auth.js"></script>
     <script>
         function logout() {
             clearAuth();
@@ -70,9 +76,13 @@
                 const resC = await fetchWithAuth('/api/customers/getAllCustomers');
                 const customers = await resC.json();
                 document.getElementById('total-customers').innerText = customers.length;
+                const resO = await fetchWithAuth('/api/orders/getAllOrders');
+                const orders = await resO.json();
+                document.getElementById('total-orders').innerText = orders.length;
             } catch (e) { console.log("Chưa có data"); }
         }
         loadStats();
     </script>
+    
 </body>
 </html>

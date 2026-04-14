@@ -9,19 +9,26 @@ async function fetchCustomers() {
     data.forEach(c => {
         tbody.innerHTML += `
             <tr>
-                <td>${c.fullName}</td>
-                <td>${c.phone}</td>
-                <td><span style="padding: 5px; background: #fce4ec">${c.memberTier}</span></td>
+                <td><b>${c.fullName}</b><br><small>${c.email}</small></td>
+                <td>${c.phone || 'Chưa cung cấp'}</td>
+                <td>${(c.totalSpent || 0).toLocaleString()}đ</td>
                 <td>
-                    <button class="btn btn-edit" onclick="upgradeVIP('${c._id}')">Lên VIP</button>
-                    <button class="btn btn-delete" onclick="deleteCust('${c._id}')">Xóa</button>
+                    <select onchange="upgradeVIP('${c._id}', this.value)" style="padding: 6px; border-radius: 4px; border: 1px solid #ddd; outline: none; background: #fce4ec; color: #d81b60; font-weight: bold;">
+                        <option value="Thường" ${c.memberTier === 'Thường' ? 'selected' : ''}>Thường</option>
+                        <option value="Bạc" ${c.memberTier === 'Bạc' ? 'selected' : ''}>Bạc</option>
+                        <option value="Vàng" ${c.memberTier === 'Vàng' ? 'selected' : ''}>Vàng</option>
+                        <option value="Kim Cương" ${c.memberTier === 'Kim Cương' ? 'selected' : ''}>Kim Cương</option>
+                        <option value="VIP" ${c.memberTier === 'VIP' ? 'selected' : ''}>VIP</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-delete" onclick="deleteCust('${c._id}')">Khóa/Xóa</button>
                 </td>
             </tr>`;
     });
 }
 
-async function upgradeVIP(id) {
-    const tier = prompt("Nhập hạng mới (Bạc, Vàng, Kim Cương):");
+async function upgradeVIP(id, tier) {
     if (tier) {
         await fetch(`${API_URL}/updateCustomer/${id}`, {
             method: 'PUT',

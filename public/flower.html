@@ -2,50 +2,49 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Hoa - Tiệm Hoa Zịt</title>
+    <title>Quản lý Hoa</title>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-
     <header>
-        <div class="logo-section">
-            <div class="logo-circle">
-                <img src="assets/images/logo-shop.svg" alt="Logo shop"> 
-            </div>
-            <div class="brand-name">Zịt Florist</div> </div>
-
+        <div class="logo-container">
+            <a href="admin.html">
+                <img src="./assets/images/logo.png" alt="Logo" class="main-logo">
+            </a>
+        </div>
         <div class="search-section">
-            <input type="text" placeholder="Tìm kiếm mẫu hoa...">
+            <input type="text" id="quickSearch" placeholder="Tìm kiếm nhanh...">
             <button><i class="fas fa-search"></i></button>
         </div>
-
-        <div class="cart-section" onclick="location.href='order.html'">
-            <i class="fas fa-shopping-cart cart-icon"></i>
-            <span class="cart-count">8</span> </div>
     </header>
 
     <nav>
-        <a href="storefront.html">Cửa Hàng</a>
         <a href="admin.html">Dashboard</a>
-        <a href="flower.html" class="active">Quản lý Hoa</a> <a href="order.html">Đơn Hàng</a>
+        <a href="order.html">Đơn Hàng</a>
+        <a href="flower.html" class="active">Quản lý Hoa</a>
         <a href="inventory.html">Kho Hàng</a>
         <a href="customer.html">Khách Hàng</a>
-        <a href="#" onclick="logout()">Đăng xuất</a>
+        <div class="dropdown">
+            <button class="dropbtn">TÀI KHOẢN ▼</button>
+            <div class="dropdown-content">
+                <a href="profile.html">Thông tin cá nhân</a>
+                <a href="#" onclick="logout()">Đăng xuất</a>
+            </div>
+        </div>
     </nav>
 
     <div class="main-content">
-        <h1>Quản Lý Mẫu Hoa (CRUD)</h1>
+        <h1>Quản Lý Mẫu Hoa</h1>
         
-        <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+        <div class="form-container" style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
             <h3>Thêm mẫu hoa mới</h3>
-            <input type="text" id="name" placeholder="Tên hoa (VD: Hoa Hồng Đỏ)">
+            <input type="text" id="name" placeholder="Tên hoa">
             <input type="text" id="category" placeholder="Danh mục">
-            <input type="file" id="imageFile" accept="image/*">
             <input type="number" id="price" placeholder="Giá tiền (VNĐ)">
             <input type="number" id="stock" placeholder="Số lượng tồn">
+            <input type="file" id="imageFile" accept="image/*">
             <button class="btn btn-add" onclick="createFlower()">+ Thêm mới</button>
-            <p style="margin-top: 10px; color: #666;">Admin bấm Chọn tệp để mở folder trên máy và upload ảnh hoa.</p>
         </div>
 
         <table>
@@ -62,7 +61,24 @@
             <tbody id="flower-table-body"></tbody>
         </table>
     </div>
-    <script src="js/auth.js"></script>
-    <script src="js/flower.js"></script>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>Cập nhật hoa</h3>
+            <input type="text" id="edit-name" placeholder="Tên hoa">
+            <input type="text" id="edit-category" placeholder="Danh mục">
+            <input type="number" id="edit-price" placeholder="Giá">
+            <input type="number" id="edit-stock" placeholder="Tồn kho">
+            <label>Thay đổi ảnh (không chọn nếu giữ nguyên):</label>
+            <input type="file" id="edit-image" accept="image/*">
+            <div class="modal-actions">
+                <button class="btn btn-save" onclick="saveUpdate()">Lưu</button>
+                <button class="btn btn-cancel" onclick="closeModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/auth.js"></script>
+    <script src="./js/flower.js"></script>
 </body>
 </html>

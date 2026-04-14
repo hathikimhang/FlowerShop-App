@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài khoản của tôi</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+   <header>
+        <div class="logo-container">
+            <a href="admin.html">
+            <img src="./assets/images/logo.png" alt="Florist Shop Logo" class="main-logo">
+            </a>
+        </div>
+        <div class="search-section">
+            <input type="text" placeholder="Tìm kiếm nhanh...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+    </header>
+
+    <nav>
+    <a href="admin.html">Dashboard</a>
+    <a href="order.html">Đơn Hàng</a>
+    <a href="flower.html">Quản lý Hoa</a>
+    <a href="inventory.html">Kho Hàng</a>
+    <a href="customer.html">Khách Hàng</a>
+    <a href="storefront.html">Cửa Hàng</a>
+    <div class="dropdown">
+        <button class="dropbtn">TÀI KHOẢN ▼</button>
+        <div class="dropdown-content">
+            <a href="profile.html">Thông tin cá nhân</a>
+            <a href="#" onclick="logout()">Đăng xuất</a>
+        </div>
+    </div>
+</nav>
+
+    <div class="main-content" style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px;">
+        <div class="order-form-wrapper" style="margin-top: 0;">
+            <h2>Thông tin tài khoản</h2>
+            <div style="background: #e0f7fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p><b>Hạng VIP:</b> <span id="profile-tier" style="color: #00bcd4; font-weight: bold;">...</span></p>
+                <p><b>Tổng chi tiêu:</b> <span id="profile-spent">...</span></p>
+            </div>
+
+            <form id="profile-form">
+                <label>Họ và tên</label>
+                <input type="text" id="profile-name" required style="width: 100%; box-sizing: border-box; margin-bottom: 10px;">
+                <label>Email</label>
+                <input type="email" id="profile-email" disabled style="width: 100%; box-sizing: border-box; margin-bottom: 10px; background: #eee;">
+                <label>Số điện thoại</label>
+                <input type="text" id="profile-phone" style="width: 100%; box-sizing: border-box; margin-bottom: 10px;">
+                <label>Địa chỉ</label>
+                <input type="text" id="profile-address" style="width: 100%; box-sizing: border-box; margin-bottom: 10px;">
+                <button type="submit" class="btn btn-add" style="width: 100%;">Cập nhật Thông tin</button>
+            </form>
+            <p id="profile-result" style="margin-top: 10px; font-weight: bold;"></p>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
+
+            <h2>Đổi mật khẩu</h2>
+            <form id="password-form">
+                <label>Mật khẩu cũ</label>
+                <input type="password" id="old-pass" required style="width: 100%; box-sizing: border-box; margin-bottom: 10px;">
+                <label>Mật khẩu mới</label>
+                <input type="password" id="new-pass" required style="width: 100%; box-sizing: border-box; margin-bottom: 10px;">
+                <button type="submit" class="btn btn-edit" style="width: 100%;">Đổi mật khẩu</button>
+            </form>
+            <p id="password-result" style="margin-top: 10px; font-weight: bold;"></p>
+        </div>
+
+        <div>
+            <h2>Lịch sử Đơn Hàng</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Thông tin giao hàng</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="my-orders-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Edit Order Modal -->
+    <div id="editOrderModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
+        <div style="background:white; padding: 25px; border-radius: 10px; width: 400px;">
+            <h3>Sửa thông tin giao hàng</h3>
+            <form id="edit-order-form">
+                <input type="hidden" id="edit-order-id">
+                <label>Tên người nhận</label>
+                <input type="text" id="edit-recipient-name" required style="width: 100%; box-sizing: border-box; margin-bottom: 10px;">
+                <label>Số điện thoại</label>
+                <input type="text" id="edit-recipient-phone" required style="width: 100%; box-sizing: border-box; margin-bottom: 10px;">
+                <label>Địa chỉ giao hàng</label>
+                <input type="text" id="edit-delivery-address" required style="width: 100%; box-sizing: border-box; margin-bottom: 10px;">
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" class="btn btn-add" style="flex:1;">Lưu</button>
+                    <button type="button" class="btn btn-delete" style="flex:1;" onclick="document.getElementById('editOrderModal').style.display='none'">Hủy</button>
+                </div>
+            </form>
+            <p id="edit-order-result" style="margin-top: 10px; font-weight: bold;"></p>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+</html>

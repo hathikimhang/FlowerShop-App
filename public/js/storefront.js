@@ -47,28 +47,46 @@ function saveCart() {
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
-function addToCart(flower) {
+function addToCartById(flowerId, checkoutNow = false) {
+    const flower = currentFlowers.find((item) => item._id === flowerId);
+    if (!flower) return;
+
+    const qtyInput = document.getElementById(`qty-${flowerId}`);
+    const qtyToAdd = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
+
+    if (qtyToAdd < 1) {
+        alert('Số lượng không hợp lệ!');
+        return;
+    }
+
     const existing = cart.find((item) => item.flowerId === flower._id);
+    const currentQty = existing ? existing.quantity : 0;
+    
+    if (currentQty + qtyToAdd > flower.stock) {
+        alert('Số lượng vượt quá tồn kho (Còn lại: ' + (flower.stock - currentQty) + ')');
+        return;
+    }
+    
     if (existing) {
-        existing.quantity += 1;
+        existing.quantity += qtyToAdd;
     } else {
         cart.push({
             flowerId: flower._id,
             name: flower.name,
             price: Number(flower.price),
             image: flower.image,
-            quantity: 1
+            quantity: qtyToAdd
         });
     }
+
     saveCart();
     renderCart();
-    orderResult.innerText = `Đã thêm "${flower.name}" vào giỏ hàng.`;
-}
-
-function addToCartById(flowerId) {
-    const flower = currentFlowers.find((item) => item._id === flowerId);
-    if (!flower) return;
-    addToCart(flower);
+    
+    if (checkoutNow) {
+        toggleCartView(true);
+    } else {
+        alert(`Đã thêm ${qtyToAdd} sản phẩm vào giỏ hàng!`);
+    }
 }
 
 function removeFromCart(flowerId) {
@@ -90,6 +108,12 @@ function changeQuantity(flowerId, delta) {
 }
 
 function renderCart() {
+    const countEl = document.getElementById('cart-count');
+    if (countEl) {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        countEl.innerText = totalItems;
+    }
+
     cartTableBody.innerHTML = '';
 
     if (cart.length === 0) {
@@ -124,6 +148,21 @@ function renderCart() {
     cartTotal.innerText = `Tổng cộng: ${total.toLocaleString('vi-VN')}đ`;
 }
 
+function toggleCartView(toCart = false) {
+    const storefront = document.getElementById('storefront-view');
+    const checkout = document.getElementById('checkout-view');
+    if (toCart) {
+        storefront.style.display = 'none';
+        checkout.style.display = 'block';
+        renderCart(); 
+        window.scrollTo(0, 0);
+    } else {
+        storefront.style.display = 'block';
+        checkout.style.display = 'none';
+        window.scrollTo(0, 0);
+    }
+}
+
 function flowerCardTemplate(flower) {
     return `
         <div class="flower-card">
@@ -132,7 +171,14 @@ function flowerCardTemplate(flower) {
             <p>Chủ đề: ${flower.category}</p>
             <p>Giá: ${Number(flower.price).toLocaleString('vi-VN')}đ</p>
             <p>Tồn kho: ${flower.stock}</p>
-            <button class="btn btn-add" onclick="addToCartById('${flower._id}')">Thêm vào giỏ</button>
+            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                <label style="font-size: 14px; font-weight: bold;">Số lượng:</label>
+                <input type="number" id="qty-${flower._id}" value="1" min="1" max="${flower.stock}" style="width: 70px; padding: 6px; margin: 0; box-sizing: border-box;">
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-add" style="flex: 1; padding: 10px 5px; font-size: 13px; margin: 0; white-space: nowrap;" onclick="addToCartById('${flower._id}', false)">Thêm vào giỏ</button>
+                <button class="btn btn-edit" style="flex: 1; background-color: #ff9800; padding: 10px 5px; font-size: 13px; margin: 0; white-space: nowrap;" onclick="addToCartById('${flower._id}', true)">Mua Ngay</button>
+            </div>
         </div>
     `;
 }
@@ -232,3 +278,4 @@ window.addToCart = addToCart;
 window.addToCartById = addToCartById;
 window.removeFromCart = removeFromCart;
 window.changeQuantity = changeQuantity;
+window.toggleCartView = toggleCartView;

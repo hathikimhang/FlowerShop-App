@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
-  <circle cx="120" cy="120" r="110" fill="#00bcd4"/>
-  <circle cx="120" cy="120" r="88" fill="#ffffff"/>
-  <path d="M70 132c22-30 78-30 100 0-20 22-80 22-100 0z" fill="#00bcd4"/>
-  <circle cx="95" cy="98" r="10" fill="#00bcd4"/>
-  <circle cx="145" cy="98" r="10" fill="#00bcd4"/>
-  <text x="120" y="188" text-anchor="middle" font-size="24" fill="#00bcd4" font-family="Arial">FS</text>
-</svg>

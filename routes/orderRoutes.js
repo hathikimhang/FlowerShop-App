@@ -8,4 +8,7 @@ router.get('/getAllOrders', requireAuth, requireRole('admin'), orderController.g
 router.put('/updateOrder/:id', requireAuth, requireRole('admin'), orderController.updateOrder);
 router.delete('/deleteOrder/:id', requireAuth, requireRole('admin'), orderController.deleteOrder);
 
+router.get('/myOrders', requireAuth, orderController.getMyOrders);
+router.put('/updateMyOrder/:id', requireAuth, orderController.updateMyOrder);
+
 module.exports = router;

@@ -1,140 +1,139 @@
 const API_URL = '/api/flowers';
 const DEFAULT_IMAGE = '/assets/images/product-placeholder.svg';
+let currentFlowerId = null;
 
-// 1. READ: Lấy toàn bộ danh sách hoa đổ vào bảng
+// 1. LOAD DANH SÁCH HOA
 async function loadFlowers() {
     try {
         const res = await fetchWithAuth(`${API_URL}/getAllFlowers`);
-        if (!res.ok) return;
         const data = await res.json();
         const tbody = document.getElementById('flower-table-body');
         tbody.innerHTML = '';
-
+        
         data.forEach(flower => {
             tbody.innerHTML += `
                 <tr>
-                    <td><b>${flower.name}</b></td>
-                    <td>
-                        <img src="${flower.image || DEFAULT_IMAGE}" alt="${flower.name}" style="width: 90px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #eee;">
-                        <div style="margin-top: 8px;">
-                            <input type="file" id="replace-image-${flower._id}" accept="image/*">
-                        </div>
-                    </td>
+                    <td>${flower.name}</td>
+                    <td><img src="${flower.image || DEFAULT_IMAGE}" style="width:70px"></td>
                     <td>${flower.category}</td>
-                    <td>${flower.price.toLocaleString()}đ</td>
+                    <td>${Number(flower.price).toLocaleString()}đ</td>
                     <td>${flower.stock}</td>
                     <td>
-                        <button class="btn btn-edit" onclick="updateFlowerPrice('${flower._id}', ${flower.price})">Sửa Giá</button>
-                        <button class="btn btn-edit" onclick="updateFlowerImage('${flower._id}')">Thay Ảnh</button>
-                        <button class="btn btn-delete" onclick="deleteFlowerImage('${flower._id}')">Xóa Ảnh</button>
+                        <button class="btn btn-edit" onclick="openEditModal('${flower._id}', '${flower.name}', '${flower.category}', ${flower.price}, ${flower.stock})">Sửa</button>
                         <button class="btn btn-delete" onclick="deleteFlower('${flower._id}')">Xóa</button>
                     </td>
-                </tr>
-            `;
+                </tr>`;
         });
-    } catch (err) { console.error("Lỗi:", err); }
+    } catch (err) {
+        console.error("Lỗi khi load danh sách:", err);
+    }
 }
 
-// 2. CREATE: Gửi data lên để tạo mới
-async function createFlower() {
-    const name = document.getElementById('name').value;
-    const category = document.getElementById('category').value;
-    const imageFile = document.getElementById('imageFile').files[0];
-    const price = document.getElementById('price').value;
-    const stock = document.getElementById('stock').value;
+// 2. MỞ MODAL CẬP NHẬT
+function openEditModal(id, name, category, price, stock) {
+    currentFlowerId = id.trim(); // Tránh lỗi khoảng trắng ID
+    document.getElementById('edit-name').value = name;
+    document.getElementById('edit-category').value = category;
+    document.getElementById('edit-price').value = price;
+    document.getElementById('edit-stock').value = stock;
+    document.getElementById('editModal').style.display = 'block';
+}
 
-    if (!name || !price) return alert("Vui lòng nhập tên và giá hoa!");
+// 3. ĐÓNG MODAL
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
 
+// 4. LƯU CẬP NHẬT
+async function saveUpdate() {
+    if (!currentFlowerId) return alert("Không xác định được ID hoa!");
+    
+    console.log("--- Đang cập nhật ID:", currentFlowerId);
+    
     const formData = new FormData();
-    formData.append('name', name);
-    formData.append('category', category);
-    formData.append('price', Number(price));
-    formData.append('stock', Number(stock));
-    if (imageFile) {
-        formData.append('image', imageFile);
+    formData.append('name', document.getElementById('edit-name').value);
+    formData.append('category', document.getElementById('edit-category').value);
+    formData.append('price', document.getElementById('edit-price').value);
+    formData.append('stock', document.getElementById('edit-stock').value);
+
+    const fileInput = document.getElementById('edit-image');
+    if (fileInput.files[0]) {
+        formData.append('image', fileInput.files[0]);
     }
 
-    await fetch(`${API_URL}/addFlower`, {
-        method: 'POST',
-        headers: { ...authHeader() },
-        body: formData
-    });
-
-    alert("Đã thêm hoa thành công!");
-    document.getElementById('imageFile').value = '';
-    loadFlowers(); // Refresh lại bảng
-}
-
-// 3. UPDATE: Chỉnh sửa giá
-async function updateFlowerPrice(id, oldPrice) {
-    const newPrice = prompt("Nhập giá mới cho mẫu hoa này:", oldPrice);
-    if (newPrice) {
-        await fetch(`${API_URL}/updateFlower/${id}`, {
+    try {
+        const res = await fetchWithAuth(`${API_URL}/updateFlower/${currentFlowerId}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', ...authHeader() },
-            body: JSON.stringify({ price: Number(newPrice) })
+            body: formData
         });
-        loadFlowers();
+
+        const result = await res.json();
+        if (res.ok) {
+            alert("Cập nhật thành công!");
+            closeModal();
+            loadFlowers();
+        } else {
+            alert("Lỗi server: " + result.message);
+        }
+    } catch (err) {
+        console.error("Lỗi cập nhật:", err);
     }
 }
 
-// 4. DELETE: Xóa mẫu hoa
+// 5. HÀM XÓA (ÔN ĐỊNH LẠI CHỖ NÀY)
 async function deleteFlower(id) {
-    if (confirm("Xóa mẫu này là mất luôn trong database đó, chịu hông?")) {
-        await fetchWithAuth(`${API_URL}/deleteFlower/${id}`, { method: 'DELETE' });
-        loadFlowers();
+    console.log("Đang gọi lệnh xóa cho ID:", id);
+    
+    if (!id) return alert("ID không hợp lệ!");
+    
+    const confirmDelete = confirm("Bạn có chắc chắn muốn xóa mẫu hoa này không?");
+    if (!confirmDelete) return;
+
+    try {
+        const res = await fetchWithAuth(`${API_URL}/deleteFlower/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            alert("Đã xóa thành công!");
+            loadFlowers(); // Refresh lại bảng
+        } else {
+            const result = await res.json();
+            alert("Xóa thất bại: " + result.message);
+        }
+    } catch (err) {
+        console.error("Lỗi xóa:", err);
+        alert("Không thể kết nối đến server để xóa.");
     }
 }
 
-async function updateFlowerImage(id) {
-    const input = document.getElementById(`replace-image-${id}`);
-    const file = input?.files?.[0];
-    if (!file) {
-        alert('Bạn chưa chọn ảnh để thay.');
-        return;
-    }
-
+// 6. THÊM HOA MỚI (DỰ PHÒNG NẾU ÔNG CẦN)
+async function createFlower() {
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('name', document.getElementById('name').value);
+    formData.append('category', document.getElementById('category').value);
+    formData.append('price', document.getElementById('price').value);
+    formData.append('stock', document.getElementById('stock').value);
 
-    const res = await fetch(`${API_URL}/updateFlowerImage/${id}`, {
-        method: 'PUT',
-        headers: { ...authHeader() },
-        body: formData
-    });
-    const data = await res.json();
-    if (!res.ok) {
-        alert(data.message || 'Không thể thay ảnh.');
-        return;
+    const img = document.getElementById('imageFile');
+    if (img.files[0]) formData.append('image', img.files[0]);
+
+    try {
+        const res = await fetchWithAuth(`${API_URL}/addFlower`, {
+            method: 'POST',
+            body: formData
+        });
+        if (res.ok) {
+            alert("Đã thêm!");
+            loadFlowers();
+        }
+    } catch (err) {
+        console.error(err);
     }
-    alert('Đã thay ảnh thành công!');
-    loadFlowers();
 }
 
-async function deleteFlowerImage(id) {
-    if (!confirm('Xóa ảnh hiện tại và trả về ảnh mặc định?')) {
-        return;
-    }
-    const res = await fetchWithAuth(`${API_URL}/deleteFlowerImage/${id}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (!res.ok) {
-        alert(data.message || 'Không thể xóa ảnh.');
-        return;
-    }
-    alert('Đã xóa ảnh thành công!');
-    loadFlowers();
-}
-
-function logout() {
-    clearAuth();
-    window.location.href = 'login.html';
-}
-
-window.logout = logout;
-
-// Chạy load dữ liệu ngay khi vào trang
+// 7. KHỞI CHẠY
 (async () => {
     const user = await requireRole(['admin']);
-    if (!user) return;
-    loadFlowers();
+    if (user) loadFlowers();
 })();

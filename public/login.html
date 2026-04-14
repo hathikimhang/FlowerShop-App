@@ -3,48 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - FlowerShop</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <title>Đăng nhập - Florist Shop</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f4; margin: 0; }
+        .login-container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+        h2 { color: #2d5a27; margin-bottom: 20px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #2d5a27; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        button:hover { background: #1e3d1a; }
+        #error-message { color: red; font-size: 14px; margin-top: 10px; min-height: 20px; }
+    </style>
 </head>
 <body>
-    <div class="main-content" style="max-width: 500px; margin: 30px auto;">
-        <h1>Đăng nhập</h1>
-        <div style="background: white; padding: 20px; border-radius: 10px;">
-            <input type="email" id="email" placeholder="Email" style="width: 100%; margin-bottom: 10px;">
-            <input type="password" id="password" placeholder="Mật khẩu" style="width: 100%; margin-bottom: 10px;">
-            <button class="btn btn-add" style="width: 100%;" onclick="login()">Đăng nhập</button>
-            <p id="login-msg" style="margin-top: 10px;"></p>
-            <p>Chưa có tài khoản? <a href="register.html">Đăng ký</a></p>
-        </div>
+
+    <div class="login-container">
+        <h2>Đăng nhập</h2>
+        <p>Chào mừng bạn ghé thăm FLORIST SHOP</p>
+        
+        <form id="login-form">
+            <input type="email" id="email" placeholder="Email (admin@flowershop.com)" required>
+            <input type="password" id="password" placeholder="Mật khẩu (admin123)" required>
+            
+            <button type="submit">Đăng nhập</button>
+        </form>
+
+        <div id="error-message"></div>
+
+        <p style="margin-top: 15px; font-size: 14px;">Chưa có tài khoản? <a href="#">Đăng ký ngay</a></p>
     </div>
 
-    <script src="js/auth.js"></script>
+    <script src="./js/auth.js"></script>
+
     <script>
-        const currentUser = getCurrentUser();
-        if (currentUser && getToken()) {
-            redirectByRole(currentUser);
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+            const errorMsg = document.getElementById('error-message');
 
-        async function login() {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const msgEl = document.getElementById('login-msg');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault(); // Ngăn trang web tải lại
 
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            const data = await res.json();
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
 
-            if (!res.ok) {
-                msgEl.innerText = data.message || 'Đăng nhập thất bại.';
-                return;
+                    // Reset thông báo lỗi
+                    errorMsg.innerText = "";
+
+                    try {
+                        console.log(">>> [FRONTEND] Đang gửi yêu cầu login...");
+
+                        // Dùng FETCH THUẦN để tránh lỗi Token chưa tồn tại
+                        const res = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ email, password })
+                        });
+
+                        const data = await res.json();
+
+                        if (res.ok) {
+                            console.log(">>> [FRONTEND] Đăng nhập THÀNH CÔNG:", data);
+
+                            // LƯU TOKEN VÀ USER (Dùng đúng key từ file auth.js của ông)
+                            localStorage.setItem('flower_shop_token', data.token);
+                            localStorage.setItem('flower_shop_user', JSON.stringify(data.user));
+
+                            alert("Đăng nhập thành công!");
+
+                            // CHUYỂN TRANG THEO QUYỀN (ROLE)
+                            if (data.user.role === 'admin') {
+                                window.location.href = 'admin.html';
+                            } else {
+                                window.location.href = 'storefront.html';
+                            }
+                        } else {
+                            // Backend trả về lỗi (401, 400...)
+                            console.warn(">>> [FRONTEND] Lỗi từ server:", data.message);
+                            errorMsg.innerText = data.message || "Đăng nhập thất bại!";
+                        }
+
+                    } catch (err) {
+                        // Lỗi kết nối hoặc lỗi logic trong khối Try
+                        console.error(">>> [FRONTEND] Lỗi Catch:", err);
+                        errorMsg.innerText = "Không thể kết nối server!";
+                    }
+                });
             }
-
-            saveAuth(data.token, data.user);
-            redirectByRole(data.user);
-        }
+        });
     </script>
 </body>
 </html>

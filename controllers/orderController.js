@@ -1,5 +1,5 @@
 const Order = require('../models/Order'); // Nhớ tạo file Order.js nha
-const Customer = require('../models/Customer');
+const User = require('../models/User');
 const Flower = require('../models/Flower');
 const Inventory = require('../models/Inventory');
 
@@ -45,18 +45,13 @@ const createOrder = async (req, res) => {
             });
         }
 
-        const normalizedPhone = normalizePhone(phone);
-        let customer = await Customer.findOne({ phone: normalizedPhone });
-        if (!customer) {
-            customer = await Customer.create({
-                fullName,
-                phone: normalizedPhone,
-                address
-            });
-        } else {
-            customer.fullName = fullName;
-            customer.address = address;
-            await customer.save();
+        if (!req.user || !req.user.userId) {
+            return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
+        }
+
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Tài khoản không tồn tại.' });
         }
 
         const payloadItems = Array.isArray(items) && items.length > 0
@@ -104,7 +99,9 @@ const createOrder = async (req, res) => {
         }
 
         const newOrder = await Order.create({
-            customerId: customer._id,
+            userId: user._id,
+            recipientName: fullName,
+            recipientPhone: phone,
             items: orderItems,
             totalAmount,
             deliveryAddress: address,
@@ -123,8 +120,8 @@ const createOrder = async (req, res) => {
             await deductInventoryForFlower(flower._id, item.quantity);
         }
 
-        customer.totalSpent += totalAmount;
-        await customer.save();
+        user.totalSpent = (user.totalSpent || 0) + totalAmount;
+        await user.save();
 
         res.status(201).json({
             message: 'Đặt hoa thành công! Đơn hàng đã được tạo.',
@@ -137,7 +134,9 @@ const createOrder = async (req, res) => {
 
 const getAllOrders = async (req, res) => {
     try {
-        const orders = await Order.find();
+        const orders = await Order.find()
+            .populate('userId', 'fullName email phone')
+            .populate('items.flowerId', 'name');
         res.status(200).json(orders);
     } catch (error) { 
         res.status(500).json({ message: "Lỗi khi lấy danh sách đơn hàng", error: error.message }); 
@@ -163,5 +162,39 @@ const deleteOrder = async (req, res) => {
         res.status(500).json({ message: "Lỗi khi xóa đơn hàng", error: error.message }); 
     }
 };
+const getMyOrders = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const orders = await Order.find({ userId })
+            .populate('items.flowerId', 'name image category')
+            .sort({ createdAt: -1 });
+        res.status(200).json(orders);
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi khi lấy danh sách đơn hàng", error: error.message });
+    }
+};
 
-module.exports = { createOrder, getAllOrders, updateOrder, deleteOrder };
+const updateMyOrder = async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const { recipientName, recipientPhone, deliveryAddress } = req.body;
+        
+        const order = await Order.findOne({ _id: orderId, userId: req.user.userId });
+        if (!order) return res.status(404).json({ message: "Không tìm thấy đơn hàng này" });
+        
+        if (order.status !== 'Mới nhận') {
+            return res.status(400).json({ message: "Chỉ đơn hàng 'Mới nhận' mới được sửa phương thức giao hàng." });
+        }
+        
+        if (recipientName !== undefined) order.recipientName = recipientName;
+        if (recipientPhone !== undefined) order.recipientPhone = recipientPhone;
+        if (deliveryAddress !== undefined) order.deliveryAddress = deliveryAddress;
+        
+        await order.save();
+        res.status(200).json({ message: "Cập nhật thành công!", data: order });
+    } catch (error) {
+        res.status(400).json({ message: "Lỗi", error: error.message });
+    }
+};
+
+module.exports = { createOrder, getAllOrders, updateOrder, deleteOrder, getMyOrders, updateMyOrder };

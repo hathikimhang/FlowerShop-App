@@ -11,7 +11,13 @@ async function fetchInventory() {
             <tr>
                 <td>ID Hoa: ${item.flowerId}</td>
                 <td>${item.remainingQuantity}</td>
-                <td>${item.status}</td>
+                <td>
+                    <select onchange="updateInventoryStatus('${item._id}', this.value)" style="padding: 6px; border-radius: 4px; border: 1px solid #ddd; outline: none; background: #fafafa;">
+                        <option value="Còn mới" ${item.status === 'Còn mới' ? 'selected' : ''}>Mới bảo quản</option>
+                        <option value="Sắp héo" ${item.status === 'Sắp héo' ? 'selected' : ''}>Sắp hỏng</option>
+                        <option value="Đã xuất hủy" ${item.status === 'Đã xuất hủy' ? 'selected' : ''}>Thanh lý / Đã xuất hủy</option>
+                    </select>
+                </td>
                 <td>
                     <button class="btn btn-delete" onclick="wasteInventory('${item._id}')">Báo Héo/Xóa</button>
                 </td>
@@ -22,6 +28,17 @@ async function fetchInventory() {
 async function wasteInventory(id) {
     if (confirm('Hoa héo rồi bỏ nha?')) {
         await fetchWithAuth(`${API_URL}/deleteInventory/${id}`, { method: 'DELETE' });
+        fetchInventory();
+    }
+}
+
+async function updateInventoryStatus(id, newStatus) {
+    if (newStatus) {
+        await fetchWithAuth(`${API_URL}/updateInventory/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
         fetchInventory();
     }
 }

@@ -14,9 +14,9 @@ body {
 header { background-color: white; padding: 10px 50px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
 
 .logo-section { display: flex; align-items: center; gap: 15px; }
-.logo-circle { width: 60px; height: 60px; background-color: #00bcd4; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.logo-circle { width: 60px; height: 60px; background-color: #2D6A59; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .logo-circle img { width: 80%; height: auto; } /* Chỗ để hình con vịt */
-.brand-name { font-size: 28px; font-weight: bold; color: #00bcd4; text-transform: uppercase; letter-spacing: 1px; }
+.brand-name { font-size: 28px; font-weight: bold; color: #2D6A59; text-transform: uppercase; letter-spacing: 1px; }
 
 .search-section { flex: 1; max-width: 600px; display: flex; margin: 0 30px; }
 .search-section input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px 0 0 5px; outline: none; }
@@ -27,7 +27,7 @@ header { background-color: white; padding: 10px 50px; display: flex; align-items
 .cart-count { position: absolute; top: -10px; right: -10px; background-color: #4caf50; color: white; border-radius: 50%; padding: 3px 7px; font-size: 12px; font-weight: bold; }
 
 /* --- THANH MENU NGANG (Màu xanh cyan) --- */
-nav { background-color: #00bcd4; /* Xanh y hình Duck Store */ padding: 0 50px; display: flex; justify-content: start; gap: 5px; }
+nav { background-color: #2D6A59; padding: 0 50px; display: flex; justify-content: center; gap: 5px; }
 nav a { color: white; text-decoration: none; padding: 15px 20px; font-weight: bold; text-transform: uppercase; font-size: 14px; transition: 0.3s; }
 nav a:hover, nav a.active { background-color: rgba(255,255,255,0.2); }
 
@@ -93,4 +93,280 @@ input[type="text"], input[type="number"], select { padding: 12px; border: 1px so
     margin-top: 12px;
     color: #00796b;
     font-weight: 600;
+}
+
+/* Container của Dropdown */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* --- PHẦN MENU VÀ DROPDOWN ĐÃ FIX MÀU --- */
+
+nav {
+    background-color: #2D6A59; /* Màu chuẩn của bà */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+/* Các link bình thường */
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 15px 25px;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    background-color: #2D6A59; /* Ép cùng màu */
+}
+
+
+.dropdown {
+    position: relative; /* Bắt buộc để làm tâm cho bảng con */
+    display: inline-block;
+}
+
+.dropbtn {
+    background-color: #2D6A59;
+    color: white;
+    padding: 15px 25px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    height: 100%; /* Đảm bảo nút cao bằng thanh nav */
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%; /* Ép nó xuất hiện ngay sát mép dưới của thanh nav */
+    right: 0;   /* Căn lề phải cho thẳng với chữ Tài Khoản */
+    background-color: #ffffff;
+    min-width: 200px; /* Cho rộng ra xíu cho đỡ bị nhảy dòng */
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 9999; /* Ép nó nổi lên trên tất cả mọi thứ khác */
+    border-radius: 0 0 8px 8px;
+    overflow: hidden; /* Cắt mấy góc thừa cho đẹp */
+}
+
+/* Fix lỗi chữ bị mất hoặc bị đè */
+.dropdown-content a {
+    color: #333 !important;
+    padding: 12px 20px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    background-color: white !important;
+    white-space: nowrap; /* Không cho chữ nhảy xuống dòng */
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-content a:hover {
+    background-color:  white  !important;
+    color: #1B4332 !important;
+}
+
+/* Hiển thị menu khi hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+
+/* --- PHẦN LOGO MỚI (CHỈ MỘT HÌNH CHỮ NHẬT) --- */
+.logo-container a {
+    text-decoration: none; /* Bỏ gạch chân nếu có */
+    display: flex;         /* Căn giữa hình ảnh bên trong */
+    align-items: center;
+}
+
+.main-logo {
+    /* Giữ nguyên đống CSS nãy tui đưa */
+    height: 60px;
+    width: auto;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.main-logo:hover {
+    transform: scale(1.05); /* Hiệu ứng nhẹ khi rê chuột vào */
+    opacity: 0.9;           /* Hơi mờ đi xíu để biết là bấm được */
+}
+
+.search-section { flex: 1; max-width: 600px; display: flex; margin: 0 30px; }
+.search-section input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px 0 0 5px; outline: none; }
+.search-section button { padding: 12px 20px; background-color: #f5f5f5; border: 1px solid #ddd; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; color: #555; }
+
+.cart-section { position: relative; cursor: pointer; }
+.cart-icon { font-size: 24px; color: #333; }
+.cart-count { position: absolute; top: -10px; right: -10px; background-color: #4caf50; color: white; border-radius: 50%; padding: 3px 7px; font-size: 12px; font-weight: bold; }
+
+/* --- STYLE RIÊNG CHO TRANG LOGIN --- */
+
+.login-page {
+    background-color: #f0f2f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.login-card {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 420px;
+}
+
+.login-header h1 {
+    color: #1B4332;
+    margin: 0 0 10px 0;
+    font-size: 32px;
+    text-align: center;
+}
+
+.login-header p {
+    color: #666;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #444;
+    font-size: 14px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #e1e1e1;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.input-group input:focus {
+    border-color: #1B4332;
+    outline: none;
+    background-color: #f9fdfb;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 15px;
+    background-color: #1B4332;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #2D5A47;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(27, 67, 50, 0.3);
+}
+
+#login-msg {
+    margin-top: 15px;
+    color: #d9534f;
+    font-size: 14px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.register-link {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+}
+
+.register-link a {
+    color: #1B4332;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    background: white;
+    width: 420px;
+    padding: 25px;
+    border-radius: 16px;
+    margin: 80px auto;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-save {
+    background: #2d6a59;
+    color: white;
+}
+
+.btn-cancel {
+    background: #ccc;
+}
+
+.btn-edit {
+    background: #00bcd4;
+    color: white;
+}
+
+.btn-delete {
+    background: red;
+    color: white;
 }

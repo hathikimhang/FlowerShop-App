@@ -2,40 +2,47 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Khách Hàng - Zịt Florist</title>
+    <title>Khách Hàng</title>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <div class="logo-section">
-            <div class="logo-circle"><img src="assets/images/logo-shop.svg" alt="Logo shop"></div>
-            <div class="brand-name">Zịt Florist</div>
+        <div class="logo-container">
+            <a href="admin.html">
+            <img src="./assets/images/logo.png" alt="Florist Shop Logo" class="main-logo">
+            </a>
         </div>
         <div class="search-section">
-            <input type="text" placeholder="Tìm số điện thoại khách...">
+            <input type="text" placeholder="Tìm kiếm nhanh...">
             <button><i class="fas fa-search"></i></button>
         </div>
-        <div class="cart-section"><i class="fas fa-shopping-cart cart-icon"></i><span class="cart-count">0</span></div>
     </header>
 
-    <nav>
-        <a href="storefront.html">Cửa Hàng</a>
-        <a href="admin.html">Dashboard</a>
-        <a href="flower.html">Quản lý Hoa</a>
-        <a href="order.html">Đơn Hàng</a>
-        <a href="inventory.html">Kho Hàng</a>
-        <a href="customer.html" class="active">Khách Hàng</a>
-        <a href="#" onclick="logout()">Đăng xuất</a>
-    </nav>
+  <nav>
+    <a href="admin.html">Dashboard</a>
+    <a href="order.html">Đơn Hàng</a>
+    <a href="flower.html">Quản lý Hoa</a>
+    <a href="inventory.html">Kho Hàng</a>
+    <a href="customer.html">Khách Hàng</a>
+    <a href="storefront.html">Cửa Hàng</a>
+    <div class="dropdown">
+        <button class="dropbtn">TÀI KHOẢN ▼</button>
+        <div class="dropdown-content">
+            <a href="profile.html">Thông tin cá nhân</a>
+            <a href="#" onclick="logout()">Đăng xuất</a>
+        </div>
+    </div>
+</nav>
 
     <div class="main-content">
-        <h1>👥 Quản Lý Khách Hàng</h1>
+        <h1>Quản Lý Khách Hàng</h1>
         <table>
             <thead>
                 <tr>
-                    <th>Tên Khách</th>
+                    <th>Tài khoản / Email</th>
                     <th>Số Điện Thoại</th>
+                    <th>Tổng Chi Tiêu</th>
                     <th>Hạng VIP</th>
                     <th>Thao Tác</th>
                 </tr>
