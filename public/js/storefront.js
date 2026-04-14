@@ -1,14 +1,27 @@
 const FLOWER_API = '/api/flowers';
 const ORDER_API = '/api/orders';
+const CART_KEY = 'flower_shop_cart';
 
 const flowerGrid = document.getElementById('flower-grid');
 const searchInput = document.getElementById('search-input');
 const categoryFilter = document.getElementById('category-filter');
-const flowerIdInput = document.getElementById('flower-id');
 const orderForm = document.getElementById('order-form');
 const orderResult = document.getElementById('order-result');
+const cartTable = document.getElementById('cart-table');
+const cartTableBody = document.getElementById('cart-table-body');
+const cartEmpty = document.getElementById('cart-empty');
+const cartTotal = document.getElementById('cart-total');
 
-let selectedFlowerId = '';
+let cart = [];
+let currentFlowers = [];
+
+function toggleAdminLinks(user) {
+    const adminLinks = document.querySelectorAll('.admin-only');
+    const isAdmin = user?.role === 'admin';
+    adminLinks.forEach((link) => {
+        link.style.display = isAdmin ? 'inline-block' : 'none';
+    });
+}
 
 function buildQuery() {
     const params = new URLSearchParams();
@@ -21,22 +34,105 @@ function buildQuery() {
     return params.toString();
 }
 
-function selectFlower(flowerId) {
-    selectedFlowerId = flowerId;
-    flowerIdInput.value = flowerId;
-    orderResult.innerText = 'Da chon mau hoa. Moi ban dien thong tin dat hang.';
+function readCart() {
+    try {
+        cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+        if (!Array.isArray(cart)) cart = [];
+    } catch (_error) {
+        cart = [];
+    }
+}
+
+function saveCart() {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
+
+function addToCart(flower) {
+    const existing = cart.find((item) => item.flowerId === flower._id);
+    if (existing) {
+        existing.quantity += 1;
+    } else {
+        cart.push({
+            flowerId: flower._id,
+            name: flower.name,
+            price: Number(flower.price),
+            image: flower.image,
+            quantity: 1
+        });
+    }
+    saveCart();
+    renderCart();
+    orderResult.innerText = `Đã thêm "${flower.name}" vào giỏ hàng.`;
+}
+
+function addToCartById(flowerId) {
+    const flower = currentFlowers.find((item) => item._id === flowerId);
+    if (!flower) return;
+    addToCart(flower);
+}
+
+function removeFromCart(flowerId) {
+    cart = cart.filter((item) => item.flowerId !== flowerId);
+    saveCart();
+    renderCart();
+}
+
+function changeQuantity(flowerId, delta) {
+    const item = cart.find((entry) => entry.flowerId === flowerId);
+    if (!item) return;
+    item.quantity += delta;
+    if (item.quantity <= 0) {
+        removeFromCart(flowerId);
+        return;
+    }
+    saveCart();
+    renderCart();
+}
+
+function renderCart() {
+    cartTableBody.innerHTML = '';
+
+    if (cart.length === 0) {
+        cartTable.style.display = 'none';
+        cartEmpty.style.display = 'block';
+        cartTotal.innerText = '';
+        return;
+    }
+
+    cartTable.style.display = 'table';
+    cartEmpty.style.display = 'none';
+
+    let total = 0;
+    cart.forEach((item) => {
+        const subTotal = item.price * item.quantity;
+        total += subTotal;
+        cartTableBody.innerHTML += `
+            <tr>
+                <td>${item.name}</td>
+                <td>${item.price.toLocaleString('vi-VN')}đ</td>
+                <td>
+                    <button class="btn btn-edit" onclick="changeQuantity('${item.flowerId}', -1)">-</button>
+                    <span style="margin: 0 8px;">${item.quantity}</span>
+                    <button class="btn btn-edit" onclick="changeQuantity('${item.flowerId}', 1)">+</button>
+                </td>
+                <td>${subTotal.toLocaleString('vi-VN')}đ</td>
+                <td><button class="btn btn-delete" onclick="removeFromCart('${item.flowerId}')">Xóa</button></td>
+            </tr>
+        `;
+    });
+
+    cartTotal.innerText = `Tổng cộng: ${total.toLocaleString('vi-VN')}đ`;
 }
 
 function flowerCardTemplate(flower) {
     return `
         <div class="flower-card">
-            <!-- NOTE: Thay image bang link anh that khi admin cap nhat -->
             <img src="${flower.image}" alt="${flower.name}" class="flower-image">
             <h3>${flower.name}</h3>
-            <p>Chu de: ${flower.category}</p>
-            <p>Gia: ${Number(flower.price).toLocaleString()}d</p>
-            <p>Ton: ${flower.stock}</p>
-            <button class="btn btn-add" onclick="selectFlower('${flower._id}')">Chon mau nay</button>
+            <p>Chủ đề: ${flower.category}</p>
+            <p>Giá: ${Number(flower.price).toLocaleString('vi-VN')}đ</p>
+            <p>Tồn kho: ${flower.stock}</p>
+            <button class="btn btn-add" onclick="addToCartById('${flower._id}')">Thêm vào giỏ</button>
         </div>
     `;
 }
@@ -47,10 +143,11 @@ async function loadFlowers() {
         const endpoint = query ? `${FLOWER_API}/getAllFlowers?${query}` : `${FLOWER_API}/getAllFlowers`;
         const res = await fetchWithAuth(endpoint);
         const flowers = await res.json();
+        currentFlowers = Array.isArray(flowers) ? flowers : [];
 
         flowerGrid.innerHTML = '';
         if (!Array.isArray(flowers) || flowers.length === 0) {
-            flowerGrid.innerHTML = '<p>Khong tim thay mau hoa phu hop.</p>';
+            flowerGrid.innerHTML = '<p>Không tìm thấy mẫu hoa phù hợp.</p>';
             return;
         }
 
@@ -58,24 +155,26 @@ async function loadFlowers() {
             flowerGrid.innerHTML += flowerCardTemplate(flower);
         });
     } catch (error) {
-        flowerGrid.innerHTML = '<p>Loi tai danh sach hoa. Vui long thu lai.</p>';
+        flowerGrid.innerHTML = '<p>Lỗi tải danh sách hoa. Vui lòng thử lại.</p>';
     }
 }
 
 async function submitOrder(event) {
     event.preventDefault();
 
-    if (!selectedFlowerId) {
-        orderResult.innerText = 'Ban chua chon mau hoa. Vui long bam "Chon mau nay".';
+    if (cart.length === 0) {
+        orderResult.innerText = 'Giỏ hàng đang trống, vui lòng thêm sản phẩm trước khi đặt.';
         return;
     }
 
     const payload = {
-        flowerId: selectedFlowerId,
+        items: cart.map((item) => ({
+            flowerId: item.flowerId,
+            quantity: item.quantity
+        })),
         fullName: document.getElementById('fullName').value.trim(),
         phone: document.getElementById('phone').value.trim(),
         address: document.getElementById('address').value.trim(),
-        quantity: Number(document.getElementById('quantity').value),
         deliveryTime: document.getElementById('deliveryTime').value || null,
         cardMessage: document.getElementById('cardMessage').value.trim()
     };
@@ -89,17 +188,18 @@ async function submitOrder(event) {
         const responseData = await res.json();
 
         if (!res.ok) {
-            orderResult.innerText = responseData.message || 'Dat hoa that bai.';
+            orderResult.innerText = responseData.message || 'Đặt hoa thất bại.';
             return;
         }
 
-        orderResult.innerText = 'Dat hoa thanh cong! Don cua ban da gui den shop.';
+        orderResult.innerText = 'Đặt hoa thành công! Đơn của bạn đã gửi đến shop.';
         orderForm.reset();
-        selectedFlowerId = '';
-        flowerIdInput.value = '';
+        cart = [];
+        saveCart();
+        renderCart();
         loadFlowers();
     } catch (error) {
-        orderResult.innerText = 'Co loi xay ra khi dat hoa. Vui long thu lai.';
+        orderResult.innerText = 'Có lỗi xảy ra khi đặt hoa. Vui lòng thử lại.';
     }
 }
 
@@ -117,11 +217,18 @@ document.getElementById('reset-btn').addEventListener('click', () => {
 });
 orderForm.addEventListener('submit', submitOrder);
 
-window.selectFlower = selectFlower;
 window.logout = logout;
 
 (async () => {
     const user = await requireRole(['customer', 'admin']);
     if (!user) return;
+    toggleAdminLinks(user);
+    readCart();
+    renderCart();
     loadFlowers();
 })();
+
+window.addToCart = addToCart;
+window.addToCartById = addToCartById;
+window.removeFromCart = removeFromCart;
+window.changeQuantity = changeQuantity;

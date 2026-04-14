@@ -34,13 +34,14 @@ const createOrder = async (req, res) => {
             address,
             cardMessage,
             deliveryTime,
+            items = [],
             flowerId,
             quantity = 1
         } = req.body;
 
-        if (!fullName || !phone || !address || !flowerId) {
+        if (!fullName || !phone || !address) {
             return res.status(400).json({
-                message: 'Thiếu thông tin bắt buộc (fullName, phone, address, flowerId).'
+                message: 'Thiếu thông tin bắt buộc (fullName, phone, address).'
             });
         }
 
@@ -58,37 +59,69 @@ const createOrder = async (req, res) => {
             await customer.save();
         }
 
-        const flower = await Flower.findById(flowerId);
-        if (!flower) {
-            return res.status(404).json({ message: 'Không tìm thấy mẫu hoa đã chọn.' });
+        const payloadItems = Array.isArray(items) && items.length > 0
+            ? items
+            : [{ flowerId, quantity }];
+
+        if (!payloadItems[0]?.flowerId) {
+            return res.status(400).json({ message: 'Vui lòng chọn ít nhất một sản phẩm trong giỏ hàng.' });
         }
 
-        const qty = Number(quantity);
-        if (!Number.isInteger(qty) || qty <= 0) {
-            return res.status(400).json({ message: 'Số lượng đặt hàng không hợp lệ.' });
+        const normalizedItems = payloadItems.map((item) => ({
+            flowerId: item.flowerId,
+            quantity: Number(item.quantity)
+        }));
+
+        for (const item of normalizedItems) {
+            if (!item.flowerId || !Number.isInteger(item.quantity) || item.quantity <= 0) {
+                return res.status(400).json({ message: 'Dữ liệu giỏ hàng không hợp lệ.' });
+            }
         }
 
-        if (flower.stock < qty) {
-            return res.status(400).json({ message: 'Số lượng tồn kho không đủ để xử lý đơn.' });
+        const flowerIds = normalizedItems.map((item) => item.flowerId);
+        const flowers = await Flower.find({ _id: { $in: flowerIds } });
+        const flowerMap = new Map(flowers.map((flower) => [String(flower._id), flower]));
+
+        const orderItems = [];
+        let totalAmount = 0;
+
+        for (const item of normalizedItems) {
+            const flower = flowerMap.get(String(item.flowerId));
+            if (!flower) {
+                return res.status(404).json({ message: 'Có mẫu hoa trong giỏ hàng không còn tồn tại.' });
+            }
+
+            if (flower.stock < item.quantity) {
+                return res.status(400).json({ message: `Sản phẩm "${flower.name}" không đủ tồn kho.` });
+            }
+
+            orderItems.push({
+                flowerId: flower._id,
+                quantity: item.quantity,
+                price: flower.price
+            });
+            totalAmount += flower.price * item.quantity;
         }
 
-        const totalAmount = flower.price * qty;
         const newOrder = await Order.create({
             customerId: customer._id,
-            items: [{ flowerId: flower._id, quantity: qty, price: flower.price }],
+            items: orderItems,
             totalAmount,
             deliveryAddress: address,
             deliveryTime: deliveryTime ? new Date(deliveryTime) : undefined,
             cardMessage
         });
 
-        flower.stock -= qty;
-        if (flower.stock <= 0) {
-            flower.stock = 0;
-            flower.isAvailable = false;
+        for (const item of orderItems) {
+            const flower = flowerMap.get(String(item.flowerId));
+            flower.stock -= item.quantity;
+            if (flower.stock <= 0) {
+                flower.stock = 0;
+                flower.isAvailable = false;
+            }
+            await flower.save();
+            await deductInventoryForFlower(flower._id, item.quantity);
         }
-        await flower.save();
-        await deductInventoryForFlower(flower._id, qty);
 
         customer.totalSpent += totalAmount;
         await customer.save();

@@ -9,9 +9,12 @@ node_modules/
 data/db/
 data/
 
-# Uploaded flower images (runtime)
-public/uploads/flowers/*
-!public/uploads/flowers/.gitkeep
+# Image assets folder (logo, background, products)
+public/assets/images/*
+!public/assets/images/.gitkeep
+!public/assets/images/logo-shop.svg
+!public/assets/images/shop-background.svg
+!public/assets/images/product-placeholder.svg
 
 # Logs
 npm-debug.log*

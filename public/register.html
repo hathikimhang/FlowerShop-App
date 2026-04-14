@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dang ky - FlowerShop</title>
+    <title>Đăng ký - FlowerShop</title>
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
     <div class="main-content" style="max-width: 500px; margin: 30px auto;">
-        <h1>Dang ky tai khoan khach hang</h1>
+        <h1>Đăng ký tài khoản khách hàng</h1>
         <div style="background: white; padding: 20px; border-radius: 10px;">
-            <input type="text" id="fullName" placeholder="Ho ten" style="width: 100%; margin-bottom: 10px;">
+            <input type="text" id="fullName" placeholder="Họ tên" style="width: 100%; margin-bottom: 10px;">
             <input type="email" id="email" placeholder="Email" style="width: 100%; margin-bottom: 10px;">
-            <input type="password" id="password" placeholder="Mat khau" style="width: 100%; margin-bottom: 10px;">
-            <button class="btn btn-add" style="width: 100%;" onclick="register()">Dang ky</button>
+            <input type="password" id="password" placeholder="Mật khẩu" style="width: 100%; margin-bottom: 10px;">
+            <button class="btn btn-add" style="width: 100%;" onclick="register()">Đăng ký</button>
             <p id="register-msg" style="margin-top: 10px;"></p>
-            <p>Da co tai khoan? <a href="login.html">Dang nhap</a></p>
+            <p>Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
         </div>
     </div>
 
@@ -35,7 +35,7 @@
             const data = await res.json();
 
             if (!res.ok) {
-                msgEl.innerText = data.message || 'Dang ky that bai.';
+                msgEl.innerText = data.message || 'Đăng ký thất bại.';
                 return;
             }
 

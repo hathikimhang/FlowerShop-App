@@ -1,5 +1,5 @@
 const API_URL = '/api/flowers';
-const DEFAULT_IMAGE = 'https://placehold.co/600x400?text=Flower+Image';
+const DEFAULT_IMAGE = '/assets/images/product-placeholder.svg';
 
 // 1. READ: Lấy toàn bộ danh sách hoa đổ vào bảng
 async function loadFlowers() {

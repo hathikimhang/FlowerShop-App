@@ -2,15 +2,18 @@ const Flower = require('../models/Flower');
 const fs = require('fs');
 const path = require('path');
 
-const DEFAULT_IMAGE = 'https://placehold.co/600x400?text=Flower+Image';
+const DEFAULT_IMAGE = '/assets/images/product-placeholder.svg';
 
 const removeLocalImageIfExists = (imageUrl) => {
-    if (!imageUrl || !imageUrl.startsWith('/uploads/flowers/')) {
+    if (!imageUrl || !imageUrl.startsWith('/assets/images/')) {
         return;
     }
 
-    const filename = imageUrl.replace('/uploads/flowers/', '');
-    const filePath = path.join(__dirname, '..', 'public', 'uploads', 'flowers', filename);
+    const filename = imageUrl.replace('/assets/images/', '');
+    if (['logo-shop.svg', 'shop-background.svg', 'product-placeholder.svg', '.gitkeep'].includes(filename)) {
+        return;
+    }
+    const filePath = path.join(__dirname, '..', 'public', 'assets', 'images', filename);
     if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
     }
@@ -42,7 +45,7 @@ const addFlower = async (req, res) => {
     try {
         const payload = { ...req.body };
         if (req.file) {
-            payload.image = `/uploads/flowers/${req.file.filename}`;
+            payload.image = `/assets/images/${req.file.filename}`;
         }
 
         if (!payload.image) {
@@ -81,7 +84,7 @@ const updateFlowerImage = async (req, res) => {
         }
 
         const oldImage = flower.image;
-        flower.image = `/uploads/flowers/${req.file.filename}`;
+        flower.image = `/assets/images/${req.file.filename}`;
         await flower.save();
 
         removeLocalImageIfExists(oldImage);
