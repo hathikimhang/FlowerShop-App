@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Đơn Hàng</title>
+    <title>Quản Lý Đơn Hàng</title>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -10,46 +10,130 @@
     <header>
         <div class="logo-container">
             <a href="admin.html">
-            <img src="./assets/images/logo.png" alt="Florist Shop Logo" class="main-logo">
+                <img src="./assets/images/logo.png" alt="Florist Shop Logo" class="main-logo">
             </a>
         </div>
         <div class="search-section">
-            <input type="text" placeholder="Tìm kiếm nhanh...">
+            <input type="text" id="orderSearch" placeholder="Tìm tên khách hoặc SĐT..." onkeyup="searchOrders()">
             <button><i class="fas fa-search"></i></button>
         </div>
     </header>
 
-  <nav>
-    <a href="admin.html">Dashboard</a>
-    <a href="order.html">Đơn Hàng</a>
-    <a href="flower.html">Quản lý Hoa</a>
-    <a href="inventory.html">Kho Hàng</a>
-    <a href="customer.html">Khách Hàng</a>
-    <a href="storefront.html">Cửa Hàng</a>
-    <div class="dropdown">
-        <button class="dropbtn">TÀI KHOẢN ▼</button>
-        <div class="dropdown-content">
-            <a href="profile.html">Thông tin cá nhân</a>
-            <a href="#" onclick="logout()">Đăng xuất</a>
+    <nav>
+        <a href="admin.html">Dashboard</a>
+        <a href="order.html" class="active">Đơn Hàng</a>
+        <a href="flower.html">Quản lý Hoa</a>
+        <a href="inventory.html">Kho Hàng</a>
+        <a href="customer.html">Khách Hàng</a>
+        <a href="storefront.html">Cửa Hàng</a>
+        <div class="dropdown">
+            <button class="dropbtn">TÀI KHOẢN ▼</button>
+            <div class="dropdown-content">
+                <a href="profile.html">Thông tin cá nhân</a>
+                <a href="#" onclick="logout()">Đăng xuất</a>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <div class="main-content">
-        <h1>Danh Sách Đơn Hàng</h1>
+        <h1>Quản Lý Đơn Hàng</h1>
+        
+        <div class="form-container">
+            <h3>Tạo đơn hàng mới</h3>
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr 1.5fr 0.8fr 1fr; gap: 15px; align-items: end;">
+                <div>
+                    <label>Tên khách hàng:</label>
+                    <input type="text" id="customerName" class="form-input" placeholder="Nhập tên khách">
+                </div>
+                <div>
+                    <label>SĐT:</label>
+                    <input type="text" id="phone" class="form-input" placeholder="Số điện thoại">
+                </div>
+                <div>
+                    <label>Sản phẩm:</label>
+                    <select id="flowerSelect" class="form-input">
+                        </select>
+                </div>
+                <div>
+                    <label>Số lượng:</label>
+                    <input type="number" id="orderQuantity" class="form-input" value="1" min="1">
+                </div>
+                <div>
+                    <label>Trạng thái:</label>
+                    <select id="orderStatus" class="form-input">
+                        <option value="Đang xử lý">Đang xử lý</option>
+                        <option value="Đang giao">Đang giao</option>
+                        <option value="Đã giao">Đã giao</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-add" onclick="createOrder()" style="margin-top: 20px;">
+                <i class="fas fa-cart-plus"></i> Tạo đơn hàng
+            </button>
+        </div>
+
+        <div class="form-container" style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px; padding: 15px; background: #f9f9f9;">
+            <label style="margin:0; font-weight: bold;"><i class="fas fa-filter"></i> Lọc đơn hàng:</label>
+            <select id="statusFilter" class="form-input" style="width: 200px;" onchange="filterOrderTable()">
+                <option value="all">Tất cả trạng thái</option>
+                <option value="Đang xử lý">Đang xử lý</option>
+                <option value="Đang giao">Đang giao</option>
+                <option value="Đã giao">Đã giao</option>
+                <option value="Đã hủy">Đã hủy</option>
+            </select>
+            <span id="orderCount" style="color: #666; font-size: 14px; font-weight: bold;">Tổng số: 0 đơn hàng</span>
+        </div>
+
         <table>
             <thead>
                 <tr>
                     <th>Mã Đơn</th>
-                    <th>Khách Hàng / Giao Hàng</th>
-                    <th>Chi Tiết & Tổng Tiền</th>
+                    <th>Khách Hàng</th>
+                    <th>Sản Phẩm</th>
+                    <th>Tổng Tiền</th>
                     <th>Trạng Thái</th>
                     <th>Thao Tác</th>
                 </tr>
             </thead>
-            <tbody id="order-table-body"></tbody>
+            <tbody id="order-table-body">
+                </tbody>
         </table>
     </div>
+
+    <div id="orderModal" class="modal">
+    <div class="modal-content">
+        <h3><i class="fas fa-edit"></i> Cập nhật đơn hàng</h3>
+        <hr>
+        <div style="margin-top: 15px;">
+            <label>Tên khách hàng:</label>
+            <input type="text" id="edit-cust-name" class="form-input">
+            
+            <label>Số điện thoại:</label>
+            <input type="text" id="edit-cust-phone" class="form-input">
+            
+            <label>Sản phẩm (Chỉ xem):</label>
+            <input type="text" id="edit-flower-name" class="form-input" readonly style="background: #eee;">
+            
+            <label>Trạng thái đơn hàng:</label>
+            <select id="edit-status" class="form-input">
+                <option value="Đang xử lý">Đang xử lý</option>
+                <option value="Đang giao">Đang giao</option>
+                <option value="Đã giao">Đã giao</option>
+                <option value="Đã hủy">Đã hủy</option>
+            </select>
+        </div>
+
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="btn-action btn-action-edit" onclick="updateOrderFull()">
+                <i class="fas fa-save"></i> Lưu cập nhật
+            </button>
+            <button class="btn-action btn-action-delete" onclick="closeOrderModal()" style="background: #666;">
+                Hủy
+            </button>
+        </div>
+    </div>
+</div>
+
     <script src="js/auth.js"></script>
     <script src="js/order.js"></script>
 </body>

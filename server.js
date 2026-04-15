@@ -1,26 +1,25 @@
 const express = require('express');
 const path = require('path');
 require('dotenv').config();
+const cors = require('cors');
 
+// Import các Routes của bà
 const flowerRoutes = require('./routes/flowerRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const customerRoutes = require('./routes/customerRoutes');
 const authRoutes = require('./routes/authRoutes');
+
+// Import Database và Utils
 const connectDB = require('./database/db');
 const ensureDefaultAdmin = require('./utils/seedAdmin');
-
-
-const cors = require('cors');
 
 // Khởi tạo app Express
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- 1. MIDDLEWARE ---
-// Cho phép Front-end (khác port/domain) gọi API mà không bị chặn
 app.use(cors());
-// Parse dữ liệu gửi lên từ form/Front-end thành định dạng JSON
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 
@@ -30,23 +29,23 @@ ensureDefaultAdmin().catch((error) => {
     console.error('Khong the tao admin mac dinh:', error.message);
 });
 
-// --- 3. PHỤC VỤ FILE FRONTEND ---
+// --- 3. PHỤC VỤ FILE TĨNH (STATIC) ---
+// Sửa dòng này để nhận diện đúng toàn bộ thư mục public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Gắn từng route vào đúng đường link gốc của nó
+// --- 4. GẮN CÁC ROUTE API ---
 app.use('/api/auth', authRoutes);
-app.use('/api/flowers', flowerRoutes); // Link cho quản lý Hoa 
-app.use('/api/orders', orderRoutes);       // Link mới cho Đơn Hàng
-app.use('/api/inventory', inventoryRoutes); // Link mới cho Kho
-app.use('/api/customers', customerRoutes);  // Link mới cho Khách hàng
+app.use('/api/flowers', flowerRoutes);      // Quản lý Hoa 
+app.use('/api/orders', orderRoutes);        // Đơn Hàng
+app.use('/api/inventory', inventoryRoutes);  // Kho
+app.use('/api/customers', customerRoutes);   // Khách hàng
 
-
-// Route test thử xem server sống không
+// Route test thử xem server sống không (trả về trang login)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// --- 4. KHỞI CHẠY SERVER ---
+// --- 5. KHỞI CHẠY SERVER ---
 app.listen(PORT, () => {
     console.log(`🚀 Server đang chạy tại: http://localhost:${PORT}`);
 });

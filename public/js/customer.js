@@ -1,60 +1,46 @@
-const API_URL = '/api/customers';
+async function loadCustomers() {
+    try {
+        const res = await fetch('/api/customers/getAllCustomers');
+        const data = await res.json();
+        const tbody = document.getElementById('customer-table-body');
+        
+        if (!tbody) return;
 
-async function fetchCustomers() {
-    const res = await fetchWithAuth(`${API_URL}/getAllCustomers`);
-    if (!res.ok) return;
-    const data = await res.json();
-    const tbody = document.getElementById('customer-table-body');
-    tbody.innerHTML = '';
-    data.forEach(c => {
-        tbody.innerHTML += `
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Chưa có khách hàng nào</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map(c => `
             <tr>
-                <td><b>${c.fullName}</b><br><small>${c.email}</small></td>
-                <td>${c.phone || 'Chưa cung cấp'}</td>
-                <td>${(c.totalSpent || 0).toLocaleString()}đ</td>
+                <td style="text-align: left; padding-left: 30px;"><b>${c.customerName}</b></td>
+                <td>${c.phone}</td>
+                <td><span style="background: #eee; padding: 2px 8px; border-radius: 10px;">${c.orderCount}</span></td>
+                <td><b style="color:#27ae60;">${Number(c.totalSpent).toLocaleString()}đ</b></td>
+                <td><span class="badge rank-${c.rank}">${c.rank}</span></td>
                 <td>
-                    <select onchange="upgradeVIP('${c._id}', this.value)" style="padding: 6px; border-radius: 4px; border: 1px solid #ddd; outline: none; background: #fce4ec; color: #d81b60; font-weight: bold;">
-                        <option value="Thường" ${c.memberTier === 'Thường' ? 'selected' : ''}>Thường</option>
-                        <option value="Bạc" ${c.memberTier === 'Bạc' ? 'selected' : ''}>Bạc</option>
-                        <option value="Vàng" ${c.memberTier === 'Vàng' ? 'selected' : ''}>Vàng</option>
-                        <option value="Kim Cương" ${c.memberTier === 'Kim Cương' ? 'selected' : ''}>Kim Cương</option>
-                        <option value="VIP" ${c.memberTier === 'VIP' ? 'selected' : ''}>VIP</option>
-                    </select>
+                    <button class="btn-action-delete" onclick="deleteCust('${c._id}')" title="Xóa khách hàng">
+                        <i class="fas fa-trash"></i> Xóa
+                    </button>
                 </td>
-                <td>
-                    <button class="btn btn-delete" onclick="deleteCust('${c._id}')">Khóa/Xóa</button>
-                </td>
-            </tr>`;
-    });
-}
-
-async function upgradeVIP(id, tier) {
-    if (tier) {
-        await fetch(`${API_URL}/updateCustomer/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', ...authHeader() },
-            body: JSON.stringify({ memberTier: tier })
-        });
-        fetchCustomers();
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error("Lỗi tải danh sách khách hàng:", err);
     }
 }
 
 async function deleteCust(id) {
-    if (confirm('Khách này bom hàng hay gì mà xóa vậy má?')) {
-        await fetchWithAuth(`${API_URL}/deleteCustomer/${id}`, { method: 'DELETE' });
-        fetchCustomers();
+    if (confirm("Xóa khách này là mất hết lịch sử tích lũy đó bà Hằng! Chắc chưa?")) {
+        try {
+            const res = await fetch(`/api/customers/deleteCustomer/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                loadCustomers();
+            }
+        } catch (err) {
+            alert("Không xóa được khách rồi bà ơi!");
+        }
     }
 }
 
-function logout() {
-    clearAuth();
-    window.location.href = 'login.html';
-}
-
-window.logout = logout;
-
-(async () => {
-    const user = await requireRole(['admin']);
-    if (!user) return;
-    fetchCustomers();
-})();
+document.addEventListener('DOMContentLoaded', loadCustomers);

@@ -1,19 +1,21 @@
 const mongoose = require('mongoose');
 
 const inventorySchema = new mongoose.Schema({
-    // Khóa ngoại (Foreign Key) liên kết với bảng Flower
-    flowerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Flower', required: true },
-    
-    importQuantity: { type: Number, required: true }, // Số lượng nhập lô này
-    remainingQuantity: { type: Number, required: true }, // Số lượng còn lại sau khi bán
-    importPrice: { type: Number, required: true }, // Giá vốn lúc nhập vào (để tính lãi)
-    supplier: { type: String, default: 'Chợ hoa sỉ' }, // Nguồn nhập
-    
-    status: {
-        type: String,
-        enum: ['Còn mới', 'Sắp héo', 'Đã xuất hủy'],
-        default: 'Còn mới'
-    }
+    flowerId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Flower', 
+        required: true 
+    },
+    changeAmount: { 
+        type: Number, 
+        required: true // Số dương là nhập, số âm là xuất/hàng lỗi
+    },
+    reason: { 
+        type: String, 
+        enum: ['Nhập hàng', 'Hàng lỗi', 'Trả hàng', 'Kiểm kho'], 
+        default: 'Nhập hàng' 
+    },
+    note: { type: String, default: '' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Inventory', inventorySchema);

@@ -9,9 +9,7 @@
 <body>
     <header>
         <div class="logo-container">
-            <a href="admin.html">
-                <img src="./assets/images/logo.png" alt="Logo" class="main-logo">
-            </a>
+            <a href="admin.html"><img src="./assets/images/logo.png" alt="Logo" class="main-logo"></a>
         </div>
         <div class="search-section">
             <input type="text" id="quickSearch" placeholder="Tìm kiếm nhanh...">
@@ -25,6 +23,7 @@
         <a href="flower.html" class="active">Quản lý Hoa</a>
         <a href="inventory.html">Kho Hàng</a>
         <a href="customer.html">Khách Hàng</a>
+        <a href="storefront.html">Cửa Hàng</a>
         <div class="dropdown">
             <button class="dropbtn">TÀI KHOẢN ▼</button>
             <div class="dropdown-content">
@@ -37,14 +36,52 @@
     <div class="main-content">
         <h1>Quản Lý Mẫu Hoa</h1>
         
-        <div class="form-container" style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+        <div class="form-container">
             <h3>Thêm mẫu hoa mới</h3>
-            <input type="text" id="name" placeholder="Tên hoa">
-            <input type="text" id="category" placeholder="Danh mục">
-            <input type="number" id="price" placeholder="Giá tiền (VNĐ)">
-            <input type="number" id="stock" placeholder="Số lượng tồn">
-            <input type="file" id="imageFile" accept="image/*">
-            <button class="btn btn-add" onclick="createFlower()">+ Thêm mới</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1.5fr; gap: 15px; align-items: end;">
+                <div>
+                    <label>Tên hoa:</label>
+                    <input type="text" id="name" class="form-input" placeholder="Tên hoa">
+                </div>
+                <div>
+                    <label>Danh mục:</label>
+                    <select id="category" class="form-input">
+                        <option value="Hoa sinh nhật">Hoa sinh nhật</option>
+                        <option value="Hoa khai trương">Hoa khai trương</option>
+                        <option value="Hoa chia buồn">Hoa chia buồn</option>
+                        <option value="Hoa cưới">Hoa cưới</option>
+                        <option value="Bó hoa tươi">Bó hoa tươi</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Giá tiền (VNĐ):</label>
+                    <input type="number" id="price" class="form-input" placeholder="Giá">
+                </div>
+                <div>
+                    <label>Số lượng tồn:</label>
+                    <input type="number" id="stock" class="form-input" placeholder="Số lượng">
+                </div>
+                <div>
+                    <label>Ảnh mẫu hoa:</label>
+                    <input type="file" id="imageFile" accept="image/*" class="form-input">
+                </div>
+            </div>
+            <button class="btn btn-add" onclick="createFlower()" style="margin-top: 20px;">
+                <i class="fas fa-plus"></i> Thêm mới
+            </button>
+        </div>
+
+        <div class="form-container" style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px; padding: 15px;">
+            <label style="margin:0; font-weight: bold;">Lọc theo danh mục:</label>
+            <select id="filterCategory" class="form-input" style="width: 200px;" onchange="filterFlowerTable()">
+                <option value="all">Tất cả danh mục</option>
+                <option value="Hoa sinh nhật">Hoa sinh nhật</option>
+                <option value="Hoa khai trương">Hoa khai trương</option>
+                <option value="Hoa chia buồn">Hoa chia buồn</option>
+                <option value="Hoa cưới">Hoa cưới</option>
+                <option value="Bó hoa tươi">Bó hoa tươi</option>
+            </select>
+            <span id="flowerCount" style="color: #666; font-size: 14px;">Đang hiển thị: 0 mẫu</span>
         </div>
 
         <table>
@@ -65,14 +102,24 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <h3>Cập nhật hoa</h3>
-            <input type="text" id="edit-name" placeholder="Tên hoa">
-            <input type="text" id="edit-category" placeholder="Danh mục">
-            <input type="number" id="edit-price" placeholder="Giá">
-            <input type="number" id="edit-stock" placeholder="Tồn kho">
-            <label>Thay đổi ảnh (không chọn nếu giữ nguyên):</label>
-            <input type="file" id="edit-image" accept="image/*">
+            <label>Tên hoa:</label>
+            <input type="text" id="edit-name" class="form-input">
+            <label>Danh mục:</label>
+            <select id="edit-category" class="form-input">
+                <option value="Hoa sinh nhật">Hoa sinh nhật</option>
+                <option value="Hoa khai trương">Hoa khai trương</option>
+                <option value="Hoa chia buồn">Hoa chia buồn</option>
+                <option value="Hoa cưới">Hoa cưới</option>
+                <option value="Bó hoa tươi">Bó hoa tươi</option>
+            </select>
+            <label>Giá:</label>
+            <input type="number" id="edit-price" class="form-input">
+            <label>Tồn kho:</label>
+            <input type="number" id="edit-stock" class="form-input">
+            <label>Thay đổi ảnh:</label>
+            <input type="file" id="edit-image" accept="image/*" class="form-input">
             <div class="modal-actions">
-                <button class="btn btn-save" onclick="saveUpdate()">Lưu</button>
+                <button class="btn btn-save" onclick="saveUpdate()">Lưu thay đổi</button>
                 <button class="btn btn-cancel" onclick="closeModal()">Hủy</button>
             </div>
         </div>

@@ -1,32 +1,17 @@
-const User = require('../models/User');
+const Customer = require('../models/Customer');
 
-const getAllCustomers = async (req, res) => {
+// Lấy danh sách khách hàng
+exports.getAllCustomers = async (req, res) => {
     try {
-        const customers = await User.find({ role: 'customer' });
-        res.status(200).json(customers);
-    } catch (error) { 
-        res.status(500).json({ message: "Lỗi khi lấy danh sách khách hàng", error: error.message }); 
-    }
+        const customers = await Customer.find().sort({ totalSpent: -1 }); // Ưu tiên đại gia lên đầu
+        res.json(customers);
+    } catch (err) { res.status(500).json({ message: err.message }); }
 };
 
-const updateCustomer = async (req, res) => {
+// Xóa khách hàng (Khi khách này "phốt" hoặc dữ liệu rác)
+exports.deleteCustomer = async (req, res) => {
     try {
-        const updatedCustomer = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedCustomer) return res.status(404).json({ message: "Không tìm thấy khách hàng này" });
-        res.status(200).json({ message: "Cập nhật thành công!", data: updatedCustomer });
-    } catch (error) { 
-        res.status(400).json({ message: "Lỗi khi cập nhật thông tin khách", error: error.message }); 
-    }
+        await Customer.findByIdAndDelete(req.params.id);
+        res.json({ message: "Đã xóa khách hàng khỏi hệ thống!" });
+    } catch (err) { res.status(500).json({ message: err.message }); }
 };
-
-const deleteCustomer = async (req, res) => {
-    try {
-        const deletedCustomer = await User.findByIdAndDelete(req.params.id);
-        if (!deletedCustomer) return res.status(404).json({ message: "Không tìm thấy khách hàng này" });
-        res.status(200).json({ message: "Đã xóa dữ liệu khách hàng!" });
-    } catch (error) { 
-        res.status(500).json({ message: "Lỗi khi xóa khách hàng", error: error.message }); 
-    }
-};
-
-module.exports = { getAllCustomers, updateCustomer, deleteCustomer };

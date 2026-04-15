@@ -1,372 +1,635 @@
-/* Tổng thể */
+/* ==========================================
+   1. GLOBAL
+   ========================================== */
+:root {
+    --primary-color: #2D6A59;
+    --secondary-color: #1B4332;
+    --accent-color: #27ae60;
+    --error-color: #e74c3c;
+    --edit-color: #00bcd4;
+    --text-color: #333;
+    --bg-color: #f4f7f6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f7f6;
-    background-image: url('/assets/images/shop-background.svg');
+    background: var(--bg-color) url('/assets/images/shop-background.svg') no-repeat center center fixed;
     background-size: cover;
-    background-attachment: fixed;
-    display: block;
+    color: var(--text-color);
 }
 
-/* --- HEADER CHÍNH (Giống hình Duck Store) --- */
-header { background-color: white; padding: 10px 50px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
+/* ==========================================
+   2. BUTTON (PHẲNG - KHÔNG VIỀN)
+   ========================================== */
+.btn-edit, .btn-delete, .btn-add, .btn-save, .btn-cancel, .btn-order, .btn-admin-edit {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    appearance: none;
+    -webkit-appearance: none;
 
-.logo-section { display: flex; align-items: center; gap: 15px; }
-.logo-circle { width: 60px; height: 60px; background-color: #2D6A59; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.logo-circle img { width: 80%; height: auto; } /* Chỗ để hình con vịt */
-.brand-name { font-size: 28px; font-weight: bold; color: #2D6A59; text-transform: uppercase; letter-spacing: 1px; }
+    border-radius: 8px !important;
+    font-weight: 600 !important;
 
-.search-section { flex: 1; max-width: 600px; display: flex; margin: 0 30px; }
-.search-section input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px 0 0 5px; outline: none; }
-.search-section button { padding: 12px 20px; background-color: #f5f5f5; border: 1px solid #ddd; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; color: #555; }
-
-.cart-section { position: relative; cursor: pointer; }
-.cart-icon { font-size: 24px; color: #333; }
-.cart-count { position: absolute; top: -10px; right: -10px; background-color: #4caf50; color: white; border-radius: 50%; padding: 3px 7px; font-size: 12px; font-weight: bold; }
-
-/* --- THANH MENU NGANG (Màu xanh cyan) --- */
-nav { background-color: #2D6A59; padding: 0 50px; display: flex; justify-content: center; gap: 5px; }
-nav a { color: white; text-decoration: none; padding: 15px 20px; font-weight: bold; text-transform: uppercase; font-size: 14px; transition: 0.3s; }
-nav a:hover, nav a.active { background-color: rgba(255,255,255,0.2); }
-
-/* --- NỘI DUNG CHÍNH --- */
-.main-content { padding: 40px 50px; margin: 0; /* Bỏ margin-left cũ */ }
-
-/* Bảng và Card (Giữ nguyên logic cũ nhưng tút lại cho đẹp) */
-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-th, td { padding: 18px; text-align: left; border-bottom: 1px solid #eee; }
-th { background-color: #e0f7fa; color: #00838f; text-transform: uppercase; font-size: 13px; }
-
-.btn { border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; }
-.btn-add { background-color: #4caf50; margin-bottom: 20px; }
-.btn-edit { background-color: #03a9f4; }
-.btn-delete { background-color: #f44336; }
-
-input[type="text"], input[type="number"], select { padding: 12px; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px; }
-
-.storefront-filters {
-    display: flex;
-    gap: 10px;
+    display: inline-flex;
     align-items: center;
-    margin-bottom: 20px;
+    justify-content: center;
+    gap: 6px;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white !important;
 }
 
-.flower-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
+/* EDIT */
+.btn-edit {
+    background-color: #00bcd4 !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+}
+.btn-edit:hover {
+    background-color: #00acc1 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,188,212,0.3) !important;
 }
 
-.flower-card {
-    background: white;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+/* DELETE */
+.btn-delete {
+    background-color: #e74c3c !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+}
+.btn-delete:hover {
+    background-color: #c0392b !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(231,76,60,0.3) !important;
 }
 
-.flower-image {
+/* ADD */
+.btn-add {
+    background-color: #27ae60 !important;
+    padding: 10px 20px !important;
+    font-size: 14px !important;
+    margin-top: 20px !important;
+}
+.btn-add:hover {
+    background-color: #2ecc71 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(39,174,96,0.3) !important;
+}
+
+/* SAVE */
+.btn-save {
+    background-color: var(--primary-color) !important;
+    padding: 10px 25px !important;
+}
+.btn-save:hover {
+    background-color: var(--secondary-color) !important;
+    transform: translateY(-2px);
+}
+
+/* CANCEL */
+.btn-cancel {
+    background-color: #95a5a6 !important;
+    padding: 10px 25px !important;
+}
+.btn-cancel:hover {
+    background-color: #7f8c8d !important;
+}
+
+/* ORDER */
+.btn-order {
+    background-color: var(--primary-color);
     width: 100%;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #eee;
+    padding: 10px;
 }
 
-.order-form-wrapper {
-    margin-top: 25px;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+/* ADMIN */
+.btn-admin-edit {
+    background-color: #4caf50 !important;
+    padding: 10px 20px !important;
+    width: 100%;
+    margin-top: 15px;
+}
+.btn-admin-edit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-.order-form-wrapper form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 10px;
+/* ==========================================
+   3. HEADER & NAV
+   ========================================== */
+header {
+    background-color: white;
+    padding: 10px 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
 }
 
-#order-result {
-    margin-top: 12px;
-    color: #00796b;
-    font-weight: 600;
+.main-logo {
+    height: 60px;
+    transition: transform 0.3s;
 }
-
-/* Container của Dropdown */
-.dropdown {
-    position: relative;
-    display: inline-block;
+.main-logo:hover {
+    transform: scale(1.05);
 }
-
-/* --- PHẦN MENU VÀ DROPDOWN ĐÃ FIX MÀU --- */
 
 nav {
-    background-color: #2D6A59; /* Màu chuẩn của bà */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: var(--primary-color);
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 0;
+    align-items: center;   /* thêm dòng này */
+    height: 55px;          /* fix chiều cao */
+    padding: 0;            /* bỏ padding gây lệch */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-/* Các link bình thường */
-nav a {
+nav a, .dropbtn {
     color: white;
     text-decoration: none;
-    padding: 15px 25px;
-    font-weight: bold;
-    font-size: 14px;
-    text-transform: uppercase;
-    background-color: #2D6A59; /* Ép cùng màu */
-}
 
-
-.dropdown {
-    position: relative; /* Bắt buộc để làm tâm cho bảng con */
-    display: inline-block;
-}
-
-.dropbtn {
-    background-color: #2D6A59;
-    color: white;
-    padding: 15px 25px;
-    font-size: 14px;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    text-transform: uppercase;
+    height: 100%;          /* quan trọng */
     display: flex;
-    align-items: center;
-    height: 100%; /* Đảm bảo nút cao bằng thanh nav */
+    align-items: center;   /* căn giữa chữ */
+
+    padding: 0 25px;       /* bỏ padding top-bottom */
+    
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    border: none;
+    background: transparent;
+    cursor: pointer;
 }
 
+nav a:hover, nav a.active, .dropbtn:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+
+/* Dropdown */
+.dropdown {
+    position: relative;
+    display: flex;          /* QUAN TRỌNG */
+    align-items: center;    /* canh giữa theo nav */
+    height: 100%;           /* ăn full chiều cao nav */
+}
+
+/* dropdown menu */
 .dropdown-content {
     display: none;
     position: absolute;
-    top: 100%; /* Ép nó xuất hiện ngay sát mép dưới của thanh nav */
-    right: 0;   /* Căn lề phải cho thẳng với chữ Tài Khoản */
-    background-color: #ffffff;
-    min-width: 200px; /* Cho rộng ra xíu cho đỡ bị nhảy dòng */
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-    z-index: 9999; /* Ép nó nổi lên trên tất cả mọi thứ khác */
+    top: 100%;
+    right: 0;
+
+    background: white;
+    min-width: 200px;
+
     border-radius: 0 0 8px 8px;
-    overflow: hidden; /* Cắt mấy góc thừa cho đẹp */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    overflow: hidden;
+
+    z-index: 9999;          /* tránh bị che */
 }
 
-/* Fix lỗi chữ bị mất hoặc bị đè */
+/* item trong dropdown */
 .dropdown-content a {
-    color: #333 !important;
-    padding: 12px 20px;
-    text-decoration: none;
     display: block;
-    text-align: left;
-    background-color: white !important;
-    white-space: nowrap; /* Không cho chữ nhảy xuống dòng */
+    padding: 12px 20px;
+    color: var(--text-color);
     border-bottom: 1px solid #f0f0f0;
+    background: white;      /* FIX nền */
 }
 
+/* hover item dropdown */
 .dropdown-content a:hover {
-    background-color:  white  !important;
-    color: #1B4332 !important;
+    background-color: #f5f5f5;
 }
 
-/* Hiển thị menu khi hover */
+/* show dropdown */
 .dropdown:hover .dropdown-content {
     display: block;
 }
 
-
-
-/* --- PHẦN LOGO MỚI (CHỈ MỘT HÌNH CHỮ NHẬT) --- */
-.logo-container a {
-    text-decoration: none; /* Bỏ gạch chân nếu có */
-    display: flex;         /* Căn giữa hình ảnh bên trong */
-    align-items: center;
+/* ==========================================
+   4. FORM (FIX SELECT = INPUT)
+   ========================================== */
+.main-content {
+    padding: 40px 50px;
 }
 
-.main-logo {
-    /* Giữ nguyên đống CSS nãy tui đưa */
-    height: 60px;
-    width: auto;
-    cursor: pointer;
-    transition: transform 0.3s;
-}
-
-.main-logo:hover {
-    transform: scale(1.05); /* Hiệu ứng nhẹ khi rê chuột vào */
-    opacity: 0.9;           /* Hơi mờ đi xíu để biết là bấm được */
-}
-
-.search-section { flex: 1; max-width: 600px; display: flex; margin: 0 30px; }
-.search-section input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px 0 0 5px; outline: none; }
-.search-section button { padding: 12px 20px; background-color: #f5f5f5; border: 1px solid #ddd; border-left: none; border-radius: 0 5px 5px 0; cursor: pointer; color: #555; }
-
-.cart-section { position: relative; cursor: pointer; }
-.cart-icon { font-size: 24px; color: #333; }
-.cart-count { position: absolute; top: -10px; right: -10px; background-color: #4caf50; color: white; border-radius: 50%; padding: 3px 7px; font-size: 12px; font-weight: bold; }
-
-/* --- STYLE RIÊNG CHO TRANG LOGIN --- */
-
-.login-page {
-    background-color: #f0f2f5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-}
-
-.login-card {
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 420px;
-}
-
-.login-header h1 {
-    color: #1B4332;
-    margin: 0 0 10px 0;
-    font-size: 32px;
-    text-align: center;
-}
-
-.login-header p {
-    color: #666;
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 14px;
-}
-
-.input-group {
+.form-container {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    border: 1px solid #f0f0f0;
     margin-bottom: 20px;
-    text-align: left;
 }
 
-.input-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #444;
-    font-size: 14px;
-}
-
-.input-group input {
-    width: 100%;
-    padding: 14px;
-    border: 2px solid #e1e1e1;
-    border-radius: 10px;
-    font-size: 15px;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-}
-
-.input-group input:focus {
-    border-color: #1B4332;
+/* QUAN TRỌNG: input = select bằng nhau */
+input, select, .form-input {
+    height: 42px;
+    padding: 10px 15px !important;
+    border: 1px solid #ddd;
+    border-radius: 8px;
     outline: none;
+    font-size: 14px;
+    background-color: white;
+}
+
+.form-input:focus, select:focus {
+    border-color: var(--primary-color);
     background-color: #f9fdfb;
 }
 
-.btn-login {
+/* ==========================================
+   5. TABLE
+   ========================================== */
+table {
     width: 100%;
-    padding: 15px;
-    background-color: #1B4332;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+th, td {
+    padding: 18px;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background: #f8f9fa;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #555;
+}
+
+tr:hover {
+    background-color: #f1f8e9 !important;
+}
+
+/* ==========================================
+   6. BADGE
+   ========================================== */
+.badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
     font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.2s, background 0.3s;
+    text-transform: uppercase;
 }
 
-.btn-login:hover {
-    background-color: #2D5A47;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(27, 67, 50, 0.3);
+.badge-import {
+    background: #e3f2fd;
+    color: #1976d2;
 }
 
-#login-msg {
-    margin-top: 15px;
-    color: #d9534f;
-    font-size: 14px;
-    text-align: center;
-    font-weight: 500;
+.badge-error {
+    background: #ffebee;
+    color: #c62828;
 }
 
-.register-link {
-    margin-top: 25px;
-    text-align: center;
-    font-size: 14px;
-    color: #777;
-}
-
-.register-link a {
-    color: #1B4332;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.register-link a:hover {
-    text-decoration: underline;
-}
-
+/* ==========================================
+   7. MODAL
+   ========================================== */
 .modal {
     display: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.5);
     backdrop-filter: blur(3px);
+    z-index: 10000;
 }
 
 .modal-content {
-    background: white;
-    width: 420px;
-    padding: 25px;
-    border-radius: 16px;
-    margin: 80px auto;
+    background-color: #ffffff;
+    width: 90%;
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
-.modal-content input {
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    text-align: center;
+    font-size: 22px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 8px;
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+.modal-content .form-input {
     width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 8px;
-    border: 1px solid #ddd;
 }
 
 .modal-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 15px;
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
 }
 
-.btn {
-    padding: 8px 14px;
-    border-radius: 8px;
+/* ==========================================
+   8. FLOWER GRID
+   ========================================== */
+.flower-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.flower-card {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #f0f0f0;
+    transition: 0.3s;
+}
+
+.flower-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.flower-card img {
+    width: 100%;
+    aspect-ratio: 1080 / 1350;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.flower-card h3 {
+    margin: 10px 0;
+    color: var(--secondary-color);
+}
+
+.price {
+    color: #e91e63;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* ==========================================
+   9. RESPONSIVE
+   ========================================== */
+@media (max-width: 1024px) {
+    .flower-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .flower-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn-action {
     border: none;
+    border-radius: 6px;
+    color: white;
+    padding: 6px 14px;
+    font-weight: bold;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
 }
 
-.btn-save {
-    background: #2d6a59;
+.btn-action-edit { background-color: #17a2b8; } /* Xanh teal */
+.btn-action-delete { background-color: #dc3545; } /* Đỏ */
+.btn-action:hover { opacity: 0.8; }
+
+/* --- PHẦN CSS CHO BẢNG KHÁCH HÀNG --- */
+.main-content table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px; /* Tạo khoảng cách giữa các hàng cho thoáng */
+    margin-top: 10px;
+}
+
+.main-content th {
+    background-color: #f1f1f1;
+    color: #444;
+    padding: 15px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.main-content td {
+    background-color: #fff;
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+/* Badge hạng thành viên */
+.badge {
+    padding: 6px 15px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: bold;
     color: white;
+    display: inline-block;
+    min-width: 80px;
+    text-transform: uppercase;
 }
 
-.btn-cancel {
-    background: #ccc;
+/* --- PHẦN CSS CHO BẢNG KHÁCH HÀNG --- */
+.main-content table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px; /* Tạo khoảng cách giữa các hàng cho thoáng */
+    margin-top: 10px;
 }
 
+.main-content th {
+    background-color: #f1f1f1;
+    color: #444;
+    padding: 15px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.main-content td {
+    background-color: #fff;
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+/* Badge hạng thành viên */
+.badge {
+    padding: 6px 15px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    display: inline-block;
+    min-width: 80px;
+    text-transform: uppercase;
+}
+
+.rank-Thường { background-color: #95a5a6; }
+.rank-Bạc { background-color: #7f8c8d; }
+.rank-Vàng { background-color: #f1c40f; color: #000; }
+.rank-Kim\ cương { background-color: #3498db; }
+.rank-VIP { background: linear-gradient(45deg, #e74c3c, #8e44ad); box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
+
+/* Nút xóa */
+.btn-action-delete {
+    background-color: #eb4d4b;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.btn-action-delete:hover {
+    background-color: #ff7979;
+    transform: translateY(-2px);
+}
+
+/* --- PHẦN CSS CHO BẢNG KHO HÀNG (DỰA THEO JS CỦA BÀ) --- */
+
+/* 1. Căn chỉnh chung cho bảng */
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    margin-top: 15px;
+}
+
+.table-container th, .table-container td {
+    padding: 12px 15px;
+    text-align: center; /* Căn giữa cho đều */
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+/* 2. Định dạng Badge theo Class trong JS của bà */
+.badge {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: bold;
+    display: inline-block;
+    min-width: 85px;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+/* Màu cho Nhập hàng (Import) - Xanh dương */
+.badge-import {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border-color: #bbdefb;
+}
+
+/* Màu cho Hàng lỗi (Error) - Đỏ */
+.badge-error {
+    background-color: #ffebee;
+    color: #c62828;
+    border-color: #ffcdd2;
+}
+
+/* Màu cho Trả hàng (Return) - Tím */
+.badge-return {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+    border-color: #e1bee7;
+}
+
+/* Màu cho Kiểm kho (Check) - Cam */
+.badge-check {
+    background-color: #fff3e0;
+    color: #ef6c00;
+    border-color: #ffe0b2;
+}
+
+/* 3. Căn chỉnh các nút Sửa/Xóa trong bảng */
 .btn-edit {
-    background: #00bcd4;
+    background-color: #3498db;
     color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
 }
 
 .btn-delete {
-    background: red;
+    background-color: #e74c3c;
     color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-edit:hover, .btn-delete:hover {
+    opacity: 0.8;
+}
+
+/* 4. Form tạo phiếu (Căn lề cho đẹp) */
+.form-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+.form-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: #27ae60;
 }

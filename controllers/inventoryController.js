@@ -1,43 +1,76 @@
-const Inventory = require('../models/Inventory'); // Nhớ tạo file Inventory.js nha
+const Inventory = require('../models/Inventory');
+const Flower = require('../models/Flower');
 
-const getAllInventory = async (req, res) => {
+// 1. READ: Lấy danh sách lịch sử kho
+exports.getHistory = async (req, res) => {
     try {
-        const inventoryList = await Inventory.find();
-        res.status(200).json(inventoryList);
-    } catch (error) { 
-        res.status(500).json({ message: "Lỗi khi lấy danh sách kho", error: error.message }); 
+        const history = await Inventory.find()
+            .populate('flowerId', 'name') // Lấy thêm tên hoa từ bảng Flower
+            .sort({ createdAt: -1 });
+        res.json(history);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 };
 
-// Hàm nhập thêm kho (Bà gắn /:id trên link nên tui lấy ID đó gán vào dữ liệu luôn nha)
-const addInventory = async (req, res) => {
+// 2. CREATE: Thêm phiếu mới & Cập nhật tồn kho Hoa
+exports.addNote = async (req, res) => {
     try {
-        const newInventory = new Inventory({ ...req.body, flowerId: req.params.id });
-        const savedInventory = await newInventory.save();
-        res.status(201).json({ message: "Đã nhập kho thành công!", data: savedInventory });
-    } catch (error) { 
-        res.status(400).json({ message: "Lỗi khi nhập kho", error: error.message }); 
+        const { flowerId, changeAmount, reason, note } = req.body;
+        
+        // Tạo phiếu
+        const newNote = await Inventory.create({ flowerId, changeAmount, reason, note });
+        
+        // Cộng/Trừ vào stock của Hoa
+        await Flower.findByIdAndUpdate(flowerId, {
+            $inc: { stock: Number(changeAmount) }
+        });
+
+        res.status(201).json(newNote);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 };
 
-const updateInventory = async (req, res) => {
+// 3. UPDATE: Sửa phiếu & Tính toán lại tồn kho (Logic khó nhất)
+exports.updateNote = async (req, res) => {
     try {
-        const updatedInventory = await Inventory.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedInventory) return res.status(404).json({ message: "Không tìm thấy mã kho này" });
-        res.status(200).json({ message: "Cập nhật tồn kho thành công!", data: updatedInventory });
-    } catch (error) { 
-        res.status(400).json({ message: "Lỗi khi cập nhật kho", error: error.message }); 
+        const { id } = req.params;
+        const { changeAmount, reason, note } = req.body;
+
+        const oldNote = await Inventory.findById(id);
+        if (!oldNote) return res.status(404).json({ message: "Không tìm thấy phiếu" });
+
+        // Tính chênh lệch: Lấy số mới trừ số cũ
+        // Ví dụ: Cũ nhập 10, mới sửa thành 15 -> Tăng thêm 5 vào kho Hoa
+        const offset = Number(changeAmount) - oldNote.changeAmount;
+
+        const updatedNote = await Inventory.findByIdAndUpdate(id, 
+            { changeAmount, reason, note }, 
+            { new: true }
+        );
+
+        // Cập nhật lại kho Hoa theo độ chênh lệch
+        await Flower.findByIdAndUpdate(oldNote.flowerId, { $inc: { stock: offset } });
+
+        res.json(updatedNote);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 };
 
-const deleteInventory = async (req, res) => {
+// 4. DELETE: Xóa phiếu & Hoàn tác tồn kho
+exports.deleteNote = async (req, res) => {
     try {
-        const deletedInventory = await Inventory.findByIdAndDelete(req.params.id);
-        if (!deletedInventory) return res.status(404).json({ message: "Không tìm thấy mã kho này" });
-        res.status(200).json({ message: "Đã xuất hủy hoa thành công!" });
-    } catch (error) { 
-        res.status(500).json({ message: "Lỗi khi xuất hủy", error: error.message }); 
+        const note = await Inventory.findById(req.params.id);
+        if (!note) return res.status(404).json({ message: "Không tìm thấy phiếu" });
+
+        // Hoàn tác: Trừ ngược lại số lượng đã thay đổi
+        await Flower.findByIdAndUpdate(note.flowerId, { $inc: { stock: -note.changeAmount } });
+
+        await Inventory.findByIdAndDelete(req.params.id);
+        res.json({ message: "Đã xóa và hoàn tác kho" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 };
-
-module.exports = { getAllInventory, addInventory, updateInventory, deleteInventory };

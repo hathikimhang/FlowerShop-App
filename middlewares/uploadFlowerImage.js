@@ -2,27 +2,38 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 
-const uploadDir = path.join(__dirname, '..', 'public', 'assets', 'images');
-
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Hàm chuẩn hóa tên danh mục thành tên thư mục (Hoa sinh nhật -> hoasinhnhat)
+const getFolderName = (category) => {
+    if (!category) return 'khac';
+    return category.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, '');
+};
 
 const storage = multer.diskStorage({
-    destination: (_req, _file, cb) => cb(null, uploadDir),
-    filename: (_req, file, cb) => {
+    destination: (req, file, cb) => {
+        // Lấy folderName dựa trên category gửi từ Frontend
+        const folderName = getFolderName(req.body.category);
+        const dest = path.join(__dirname, '..', 'public', 'assets', 'images', folderName);
+
+        // Tự động tạo thư mục nếu chưa có (ví dụ thư mục hoasinhnhat)
+        if (!fs.existsSync(dest)) {
+            fs.mkdirSync(dest, { recursive: true });
+        }
+        cb(null, dest);
+    },
+    filename: (req, file, cb) => {
         const ext = path.extname(file.originalname).toLowerCase();
         const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
         cb(null, filename);
     }
 });
 
-const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
 const fileFilter = (_req, file, cb) => {
-    if (allowedMimeTypes.includes(file.mimetype)) {
-        return cb(null, true);
-    }
-    return cb(new Error('Chi chap nhan file JPG/PNG/WEBP'));
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+    if (allowed.includes(file.mimetype)) return cb(null, true);
+    cb(new Error('Chỉ chấp nhận file ảnh!'), false);
 };
 
 const uploadFlowerImage = multer({

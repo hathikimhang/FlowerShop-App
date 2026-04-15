@@ -1,14 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
-const { requireAuth, requireRole } = require('../middlewares/authMiddleware');
 
-router.post('/addOrder', requireAuth, requireRole('customer', 'admin'), orderController.createOrder);
-router.get('/getAllOrders', requireAuth, requireRole('admin'), orderController.getAllOrders);
-router.put('/updateOrder/:id', requireAuth, requireRole('admin'), orderController.updateOrder);
-router.delete('/deleteOrder/:id', requireAuth, requireRole('admin'), orderController.deleteOrder);
-
-router.get('/myOrders', requireAuth, orderController.getMyOrders);
-router.put('/updateMyOrder/:id', requireAuth, orderController.updateMyOrder);
+router.post('/addOrder', orderController.createOrder);
+router.get('/getAllOrders', orderController.getAllOrders);
+router.put('/updateStatus/:id', orderController.updateStatus); // Dòng này quan trọng nè bà
+router.delete('/deleteOrder/:id', orderController.deleteOrder);
 
 module.exports = router;

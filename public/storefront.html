@@ -36,61 +36,25 @@
     </div>
 </nav>
 
-    <div class="main-content">
-        <h1>Trang Cửa hàng & Đặt hoa</h1>
-        <div id="storefront-view">
-            <div class="storefront-filters">
-                <select id="category-filter">
-                    <option value="">Tất cả chủ đề</option>
-                    <option value="Hoa sinh nhật">Hoa sinh nhật</option>
-                    <option value="Hoa khai trương">Hoa khai trương</option>
-                    <option value="Hoa tình yêu">Hoa tình yêu</option>
-                    <option value="Khác">Khác</option>
-                </select>
-                <button class="btn btn-edit" id="filter-btn">Lọc</button>
-                <button class="btn btn-delete" id="reset-btn">Xóa lọc</button>
-            </div>
+   <div class="main-content">
+    <h1><i></i> Trang Cửa hàng </h1>
 
-            <div id="flower-grid" class="flower-grid"></div>
+    <div class="form-container" style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px; padding: 15px;">
+    <label style="margin:0; font-weight: bold;">Chủ đề hoa:</label>
+    <select id="categoryFilter" class="form-input" style="width: 200px;" onchange="filterFlowers()">
+        <option value="all">Tất cả danh mục</option>
+        <option value="Hoa sinh nhật">Hoa sinh nhật</option>
+        <option value="Hoa khai trương">Hoa khai trương</option>
+        <option value="Hoa chia buồn">Hoa chia buồn</option>
+        <option value="Hoa cưới">Hoa cưới</option>
+        <option value="Bó hoa tươi">Bó hoa tươi</option>
+    </select>
+    <span id="storeflowerCount" style="color: #666; font-size: 14px;">Đang hiển thị: 0 mẫu</span>
+</div>
+
+    <div id="flower-grid" class="flower-grid">
         </div>
-
-        <div id="checkout-view" style="display: none;">
-            <button class="btn btn-edit" style="margin-bottom: 20px;" onclick="toggleCartView()"><i class="fas fa-arrow-left"></i> Tiếp tục mua sắm</button>
-            
-            <div class="order-form-wrapper">
-                <h2>Giỏ hàng</h2>
-                <div id="cart-empty">Giỏ hàng đang trống.</div>
-                <table id="cart-table" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th>Sản phẩm</th>
-                            <th>Giá</th>
-                            <th>Số lượng</th>
-                            <th>Tạm tính</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cart-table-body"></tbody>
-                </table>
-                <p id="cart-total" style="font-weight: 700;"></p>
-            </div>
-
-            <div class="order-form-wrapper">
-                <h2>Đặt Hoa</h2>
-                <p>Thêm sản phẩm vào giỏ hàng, sau đó điền thông tin nhận hàng.</p>
-                <form id="order-form">
-                    <input type="text" id="fullName" placeholder="Tên người nhận/đặt" required>
-                    <input type="text" id="phone" placeholder="Số điện thoại" required>
-                    <input type="text" id="address" placeholder="Địa chỉ giao hàng" required>
-                    <input type="datetime-local" id="deliveryTime">
-                    <input type="text" id="cardMessage" placeholder="Lời ghi trên thiệp">
-                    <button type="submit" class="btn btn-add">Đặt Hàng</button>
-                </form>
-                <p id="order-result"></p>
-            </div>
-        </div>
-    </div>
-
+</div>
     <script src="js/auth.js"></script>
     <script src="js/storefront.js"></script>
 </body>

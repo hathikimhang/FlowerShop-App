@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Kho Hàng</title>
+    <title>Kho Hàng - Flower Boutique</title>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -10,7 +10,7 @@
     <header>
         <div class="logo-container">
             <a href="admin.html">
-            <img src="./assets/images/logo.png" alt="Florist Shop Logo" class="main-logo">
+                <img src="./assets/images/logo.png" alt="Logo" class="main-logo">
             </a>
         </div>
         <div class="search-section">
@@ -34,21 +34,98 @@
         </div>
     </div>
 </nav>
+
     <div class="main-content">
-        <h1>Quản Lý Tồn Kho</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Mã Lô</th>
-                    <th>Số Lượng</th>
-                    <th>Tình Trạng</th>
-                    <th>Thao Tác</th>
-                </tr>
-            </thead>
-            <tbody id="inventory-table-body"></tbody>
-        </table>
+        <h1><i></i> Quản Lý Nhập/Xuất Kho</h1>
+
+        <div class="form-container">
+    <h3><i></i> Tạo phiếu kho mới</h3>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; gap: 15px; align-items: end;">
+        <div>
+            <label>Chọn Hoa:</label>
+            <select id="flowerSelect" class="form-input" style="width: 100%;"></select>
+        </div>
+        <div>
+            <label>Số lượng:</label>
+            <input type="number" id="changeAmount" class="form-input" placeholder="Số lượng" style="width: 100%;">
+        </div>
+        <div>
+            <label>Lý do:</label>
+            <select id="reason" class="form-input" style="width: 100%;">
+                <option value="Nhập hàng">Nhập hàng</option>
+                <option value="Hàng lỗi">Hàng lỗi</option>
+                <option value="Trả hàng">Trả hàng</option>
+                <option value="Kiểm kho">Kiểm kho</option>
+            </select>
+        </div>
+        <div>
+            <label>Ghi chú:</label>
+            <input type="text" id="note" class="form-input" placeholder="Nhập ghi chú chi tiết..." style="width: 100%;">
+        </div>
     </div>
-    <script src="js/auth.js"></script>
-    <script src="js/inventory.js"></script>
+
+    <div style="margin-top: 20px;">
+        <button class="btn btn-add" onclick="createInventoryNote()">
+            <i class="fas fa-check"></i> Xác nhận nhập/xuất
+        </button>
+    </div>
+</div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ngày tạo</th>
+                        <th>Tên Hoa</th>
+                        <th>Số lượng</th>
+                        <th>Lý do</th>
+                        <th>Ghi chú</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="editInvModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-edit"></i> Cập nhật phiếu kho</h3>
+            <hr>
+            <p>Sản phẩm: <b id="edit-flower-name" style="color: #27ae60;"></b></p>
+            
+            <div class="form-group">
+                <label>Số lượng mới:</label>
+                <input type="number" id="edit-changeAmount" class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label>Lý do:</label>
+                <select id="edit-reason" class="form-input">
+                    <option value="Nhập hàng">Nhập hàng</option>
+                    <option value="Hàng lỗi">Hàng lỗi</option>
+                    <option value="Trả hàng">Trả hàng</option>
+                    <option value="Kiểm kho">Kiểm kho</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Ghi chú:</label>
+                <input type="text" id="edit-note" class="form-input">
+            </div>
+
+            <div class="modal-actions">
+            <button class="btn btn-save" onclick="saveUpdateInv()">
+                <i class="fas fa-save"></i> Cập nhật
+            </button>
+            <button class="btn btn-cancel" onclick="closeInvModal()">
+                <i class="fas fa-times"></i> Hủy bỏ
+            </button>
+        </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/inventory.js"></script>
 </body>
 </html>

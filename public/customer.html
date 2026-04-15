@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Khách Hàng</title>
+    <title>Danh Sách Khách Hàng - Florist Shop</title>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -10,7 +10,7 @@
     <header>
         <div class="logo-container">
             <a href="admin.html">
-            <img src="./assets/images/logo.png" alt="Florist Shop Logo" class="main-logo">
+                <img src="./assets/images/logo.png" alt="Florist Shop Logo" class="main-logo">
             </a>
         </div>
         <div class="search-section">
@@ -19,38 +19,49 @@
         </div>
     </header>
 
-  <nav>
-    <a href="admin.html">Dashboard</a>
-    <a href="order.html">Đơn Hàng</a>
-    <a href="flower.html">Quản lý Hoa</a>
-    <a href="inventory.html">Kho Hàng</a>
-    <a href="customer.html">Khách Hàng</a>
-    <a href="storefront.html">Cửa Hàng</a>
-    <div class="dropdown">
-        <button class="dropbtn">TÀI KHOẢN ▼</button>
-        <div class="dropdown-content">
-            <a href="profile.html">Thông tin cá nhân</a>
-            <a href="#" onclick="logout()">Đăng xuất</a>
+    <nav>
+        <a href="admin.html">Dashboard</a>
+        <a href="order.html">Đơn Hàng</a>
+        <a href="flower.html">Quản lý Hoa</a>
+        <a href="inventory.html">Kho Hàng</a>
+        <a href="customer.html" class="active">Khách Hàng</a>
+        <a href="storefront.html">Cửa Hàng</a>
+        <div class="dropdown">
+            <button class="dropbtn">TÀI KHOẢN ▼</button>
+            <div class="dropdown-content">
+                <a href="profile.html">Thông tin cá nhân</a>
+                <a href="#" onclick="logout()">Đăng xuất</a>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <div class="main-content">
-        <h1>Quản Lý Khách Hàng</h1>
+        <h1>Danh Sách Khách Hàng Thân Thiết</h1>
+        
+        <div class="form-container" style="padding: 15px; margin-bottom: 20px; background-color: #fdfdfd; border-left: 5px solid #27ae60;">
+            <p style="margin: 0; color: #555;">
+                <i class="fas fa-info-circle" style="color: #27ae60;"></i> 
+                Hệ thống tự động cập nhật hạng dựa trên số đơn hàng <b>(Trạng thái: Đã giao)</b>.
+            </p>
+        </div>
+
         <table>
             <thead>
                 <tr>
-                    <th>Tài khoản / Email</th>
-                    <th>Số Điện Thoại</th>
-                    <th>Tổng Chi Tiêu</th>
-                    <th>Hạng VIP</th>
-                    <th>Thao Tác</th>
+                    <th style="width: 25%;">Tên Khách Hàng</th>
+                    <th style="width: 15%;">Số Điện Thoại</th>
+                    <th style="width: 10%;">Số Đơn</th>
+                    <th style="width: 20%;">Tổng Chi Tiêu</th>
+                    <th style="width: 15%;">Hạng Thành Viên</th>
+                    <th style="width: 15%;">Thao Tác</th>
                 </tr>
             </thead>
-            <tbody id="customer-table-body"></tbody>
+            <tbody id="customer-table-body">
+                </tbody>
         </table>
     </div>
-    <script src="js/auth.js"></script>
-    <script src="js/customer.js"></script>
+    
+    <script src="./js/auth.js"></script>
+    <script src="./js/customer.js"></script>
 </body>
 </html>

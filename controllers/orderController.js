@@ -1,200 +1,138 @@
-const Order = require('../models/Order'); // Nhớ tạo file Order.js nha
-const User = require('../models/User');
+const Order = require('../models/Order');
 const Flower = require('../models/Flower');
-const Inventory = require('../models/Inventory');
+const Customer = require('../models/Customer');
 
-const normalizePhone = (phone) => (phone || '').trim();
+// --- 1. HÀM ĐỒNG BỘ KHÁCH HÀNG & THĂNG HẠNG ---
+async function syncCustomer(name, phone, price) {
+    try {
+        console.log(">>> [HỆ THỐNG] ĐANG XỬ LÝ KHÁCH HÀNG:", phone);
+        let cust = await Customer.findOne({ phone: phone });
 
-const deductInventoryForFlower = async (flowerId, quantity) => {
-    let remaining = quantity;
-    const lots = await Inventory.find({
-        flowerId,
-        remainingQuantity: { $gt: 0 },
-        status: { $ne: 'Đã xuất hủy' }
-    }).sort({ createdAt: 1 });
+        if (!cust) {
+            cust = new Customer({
+                customerName: name,
+                phone: phone,
+                totalSpent: Number(price),
+                orderCount: 1,
+                rank: 'Thường'
+            });
+        } else {
+            cust.totalSpent += Number(price);
+            cust.orderCount += 1;
+            cust.customerName = name;
 
-    for (const lot of lots) {
-        if (remaining <= 0) break;
-        const used = Math.min(lot.remainingQuantity, remaining);
-        lot.remainingQuantity -= used;
-        remaining -= used;
-
-        if (lot.remainingQuantity <= 0) {
-            lot.status = 'Đã xuất hủy';
+            const n = cust.orderCount;
+            if (n >= 25) cust.rank = 'VIP';
+            else if (n >= 15) cust.rank = 'Kim cương';
+            else if (n >= 6) cust.rank = 'Vàng';
+            else if (n >= 2) cust.rank = 'Bạc';
+            else cust.rank = 'Thường';
         }
-        await lot.save();
+        await cust.save();
+        console.log(">>> [THÀNH CÔNG] Đã tích lũy đơn cho khách!");
+    } catch (err) {
+        console.error(">>> [LỖI SYNC KHÁCH]:", err.message);
+    }
+}
+
+// [POST] TẠO ĐƠN HÀNG MỚI
+exports.createOrder = async (req, res) => {
+    try {
+        const { customerName, phone, flowerId, quantity, status } = req.body;
+        
+        const qtyOrder = parseInt(quantity);
+        const flower = await Flower.findById(flowerId);
+        if (!flower) return res.status(404).json({ message: "Hoa không tồn tại!" });
+
+        const stockHienTai = Number(flower.stock);
+
+        if (stockHienTai < qtyOrder) {
+            return res.status(400).json({ message: `Hết hàng! Kho chỉ còn ${stockHienTai} bông.` });
+        }
+
+        const totalPrice = Number(flower.price) * qtyOrder;
+
+        const newOrder = new Order({
+            customerName, phone, flowerId,
+            flowerName: flower.name,
+            quantity: qtyOrder,
+            totalPrice,
+            status: status || 'Đang xử lý'
+        });
+
+        // 1. Lưu đơn hàng vào DB
+        await newOrder.save();
+
+        // 2. Trừ kho hoa
+        flower.stock = stockHienTai - qtyOrder;
+        await flower.save();
+        
+        // 3. LOGIC QUAN TRỌNG: Chỉ khi status là 'Đã giao' mới gọi hàm syncCustomer
+        // Nếu là 'Đang xử lý' thì tuyệt đối ĐÉO làm gì bảng khách hàng hết
+        if (status === 'Đã giao') {
+            console.log(">>> [HỆ THỐNG] Đơn hàng Đã giao -> Tiến hành lưu khách.");
+            await syncCustomer(customerName, phone, totalPrice);
+        } else {
+            console.log(">>> [HỆ THỐNG] Đơn chưa giao -> Chưa lưu vào danh sách khách hàng.");
+        }
+
+        res.status(201).json(newOrder);
+    } catch (err) { 
+        res.status(500).json({ message: err.message }); 
     }
 };
 
-const createOrder = async (req, res) => {
+// --- 3. CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG ---
+exports.updateStatus = async (req, res) => {
     try {
-        const {
-            fullName,
-            phone,
-            address,
-            cardMessage,
-            deliveryTime,
-            items = [],
-            flowerId,
-            quantity = 1
-        } = req.body;
+        const { status, customerName, phone } = req.body;
+        const oldOrder = await Order.findById(req.params.id);
+        if (!oldOrder) return res.status(404).json({ message: "Không thấy đơn" });
 
-        if (!fullName || !phone || !address) {
-            return res.status(400).json({
-                message: 'Thiếu thông tin bắt buộc (fullName, phone, address).'
-            });
+        let updateData = { status };
+        if (oldOrder.status === 'Đang xử lý') {
+            if (customerName) updateData.customerName = customerName;
+            if (phone) updateData.phone = phone;
         }
 
-        if (!req.user || !req.user.userId) {
-            return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
+        const updatedOrder = await Order.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        
+        if (status === 'Đã giao' && oldOrder.status !== 'Đã giao') {
+            await syncCustomer(updatedOrder.customerName, updatedOrder.phone, updatedOrder.totalPrice);
         }
 
-        const user = await User.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({ message: 'Tài khoản không tồn tại.' });
-        }
+        res.json(updatedOrder);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
 
-        const payloadItems = Array.isArray(items) && items.length > 0
-            ? items
-            : [{ flowerId, quantity }];
+// --- 4. XÓA ĐƠN HÀNG (HOÀN KHO CHUẨN) ---
+exports.deleteOrder = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: "Đơn hàng không tồn tại!" });
 
-        if (!payloadItems[0]?.flowerId) {
-            return res.status(400).json({ message: 'Vui lòng chọn ít nhất một sản phẩm trong giỏ hàng.' });
-        }
-
-        const normalizedItems = payloadItems.map((item) => ({
-            flowerId: item.flowerId,
-            quantity: Number(item.quantity)
-        }));
-
-        for (const item of normalizedItems) {
-            if (!item.flowerId || !Number.isInteger(item.quantity) || item.quantity <= 0) {
-                return res.status(400).json({ message: 'Dữ liệu giỏ hàng không hợp lệ.' });
-            }
-        }
-
-        const flowerIds = normalizedItems.map((item) => item.flowerId);
-        const flowers = await Flower.find({ _id: { $in: flowerIds } });
-        const flowerMap = new Map(flowers.map((flower) => [String(flower._id), flower]));
-
-        const orderItems = [];
-        let totalAmount = 0;
-
-        for (const item of normalizedItems) {
-            const flower = flowerMap.get(String(item.flowerId));
-            if (!flower) {
-                return res.status(404).json({ message: 'Có mẫu hoa trong giỏ hàng không còn tồn tại.' });
-            }
-
-            if (flower.stock < item.quantity) {
-                return res.status(400).json({ message: `Sản phẩm "${flower.name}" không đủ tồn kho.` });
-            }
-
-            orderItems.push({
-                flowerId: flower._id,
-                quantity: item.quantity,
-                price: flower.price
-            });
-            totalAmount += flower.price * item.quantity;
-        }
-
-        const newOrder = await Order.create({
-            userId: user._id,
-            recipientName: fullName,
-            recipientPhone: phone,
-            items: orderItems,
-            totalAmount,
-            deliveryAddress: address,
-            deliveryTime: deliveryTime ? new Date(deliveryTime) : undefined,
-            cardMessage
-        });
-
-        for (const item of orderItems) {
-            const flower = flowerMap.get(String(item.flowerId));
-            flower.stock -= item.quantity;
-            if (flower.stock <= 0) {
-                flower.stock = 0;
-                flower.isAvailable = false;
-            }
+        const flower = await Flower.findById(order.flowerId);
+        if (flower) {
+            // Hoàn lại số lượng (Ép kiểu số để tránh lỗi 18 + 8 = 188)
+            flower.stock = Number(flower.stock) + Number(order.quantity);
             await flower.save();
-            await deductInventoryForFlower(flower._id, item.quantity);
+            console.log(`>>> [KHO] Đã hoàn trả ${order.quantity} bông. Tồn mới: ${flower.stock}`);
         }
 
-        user.totalSpent = (user.totalSpent || 0) + totalAmount;
-        await user.save();
-
-        res.status(201).json({
-            message: 'Đặt hoa thành công! Đơn hàng đã được tạo.',
-            data: newOrder
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi khi tạo đơn hàng mới', error: error.message });
+        await Order.findByIdAndDelete(req.params.id);
+        res.json({ message: "Xóa đơn và hoàn kho thành công!" });
+    } catch (err) { 
+        res.status(500).json({ message: err.message }); 
     }
 };
 
-const getAllOrders = async (req, res) => {
-    try {
-        const orders = await Order.find()
-            .populate('userId', 'fullName email phone')
-            .populate('items.flowerId', 'name');
-        res.status(200).json(orders);
-    } catch (error) { 
-        res.status(500).json({ message: "Lỗi khi lấy danh sách đơn hàng", error: error.message }); 
+// --- 5. LẤY TẤT CẢ ĐƠN HÀNG ---
+exports.getAllOrders = async (req, res) => {
+    try { 
+        res.json(await Order.find().sort({ createdAt: -1 })); 
+    } catch (err) { 
+        res.status(500).json({ message: err.message }); 
     }
 };
-
-const updateOrder = async (req, res) => {
-    try {
-        const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedOrder) return res.status(404).json({ message: "Không tìm thấy đơn hàng này" });
-        res.status(200).json({ message: "Cập nhật đơn hàng thành công!", data: updatedOrder });
-    } catch (error) { 
-        res.status(400).json({ message: "Lỗi khi cập nhật đơn hàng", error: error.message }); 
-    }
-};
-
-const deleteOrder = async (req, res) => {
-    try {
-        const deletedOrder = await Order.findByIdAndDelete(req.params.id);
-        if (!deletedOrder) return res.status(404).json({ message: "Không tìm thấy đơn hàng này" });
-        res.status(200).json({ message: "Đã xóa đơn hàng thành công!" });
-    } catch (error) { 
-        res.status(500).json({ message: "Lỗi khi xóa đơn hàng", error: error.message }); 
-    }
-};
-const getMyOrders = async (req, res) => {
-    try {
-        const userId = req.user.userId;
-        const orders = await Order.find({ userId })
-            .populate('items.flowerId', 'name image category')
-            .sort({ createdAt: -1 });
-        res.status(200).json(orders);
-    } catch (error) {
-        res.status(500).json({ message: "Lỗi khi lấy danh sách đơn hàng", error: error.message });
-    }
-};
-
-const updateMyOrder = async (req, res) => {
-    try {
-        const orderId = req.params.id;
-        const { recipientName, recipientPhone, deliveryAddress } = req.body;
-        
-        const order = await Order.findOne({ _id: orderId, userId: req.user.userId });
-        if (!order) return res.status(404).json({ message: "Không tìm thấy đơn hàng này" });
-        
-        if (order.status !== 'Mới nhận') {
-            return res.status(400).json({ message: "Chỉ đơn hàng 'Mới nhận' mới được sửa phương thức giao hàng." });
-        }
-        
-        if (recipientName !== undefined) order.recipientName = recipientName;
-        if (recipientPhone !== undefined) order.recipientPhone = recipientPhone;
-        if (deliveryAddress !== undefined) order.deliveryAddress = deliveryAddress;
-        
-        await order.save();
-        res.status(200).json({ message: "Cập nhật thành công!", data: order });
-    } catch (error) {
-        res.status(400).json({ message: "Lỗi", error: error.message });
-    }
-};
-
-module.exports = { createOrder, getAllOrders, updateOrder, deleteOrder, getMyOrders, updateMyOrder };

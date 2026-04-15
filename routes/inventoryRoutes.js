@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const inventoryController = require('../controllers/inventoryController');
+const invController = require('../controllers/inventoryController');
 const { requireAuth, requireRole } = require('../middlewares/authMiddleware');
 
-router.get('/getAllInventory', requireAuth, requireRole('admin'), inventoryController.getAllInventory);
-router.post('/addInventory/:id', requireAuth, requireRole('admin'), inventoryController.addInventory);
-router.put('/updateInventory/:id', requireAuth, requireRole('admin'), inventoryController.updateInventory);
-router.delete('/deleteInventory/:id', requireAuth, requireRole('admin'), inventoryController.deleteInventory);
+router.get('/history', requireAuth, invController.getHistory);
+router.post('/add', requireAuth, requireRole('admin'), invController.addNote);
+router.put('/:id', requireAuth, requireRole('admin'), invController.updateNote);
+router.delete('/:id', requireAuth, requireRole('admin'), invController.deleteNote);
 
 module.exports = router;
