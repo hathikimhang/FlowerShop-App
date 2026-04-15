@@ -5,16 +5,14 @@ node_modules/
 .env
 .env.*
 
-# Mongo local data (if using mongod --dbpath ./data/db)
+# Mongo local data (Dữ liệu database cục bộ)
 data/db/
 data/
 
-# Image assets folder (logo, background, products)
-public/assets/images/*
+# Image assets folder (Đã sửa để nhận tất cả ảnh)
+# Cho phép Git theo dõi mọi thứ trong thư mục images để không bị mất ảnh khi pull
+public/assets/images/
 !public/assets/images/.gitkeep
-!public/assets/images/logo-shop.svg
-!public/assets/images/shop-background.svg
-!public/assets/images/product-placeholder.svg
 
 # Logs
 npm-debug.log*
@@ -22,7 +20,7 @@ yarn-debug.log*
 yarn-error.log*
 *.log
 
-# OS / editor
+# OS / editor (File rác của hệ điều hành và trình soạn thảo)
 .DS_Store
 Thumbs.db
 .vscode/
